@@ -1,0 +1,153 @@
+---
+import { siteLinks, externalSources, repoLinks } from "@lib/links";
+import { APP_VERSION, BUILD_DATE } from "@lib/version";
+import { BRAND } from "@lib/brand";
+import { baseUrl } from "@lib/paths";
+
+const base = baseUrl();
+const year = new Date().getFullYear();
+const site = siteLinks(base);
+const sources = externalSources();
+const repo = repoLinks();
+
+// Format BUILD_DATE as a short, readable date. BUILD_DATE may be an ISO
+// timestamp (CI) or a YYYY-MM-DD-ish string — Date() handles both.
+let buildDateLabel = "";
+let buildDateIso = "";
+try {
+  const d = new Date(BUILD_DATE);
+  if (!Number.isNaN(d.getTime())) {
+    buildDateIso = d.toISOString();
+    buildDateLabel = d.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
+} catch {
+  // ignore — buildDateLabel stays empty and we skip the badge
+}
+---
+
+<footer class="footer" role="contentinfo">
+  <div class="container footer__grid">
+    <div class="footer__col">
+      <h4>{BRAND.name}</h4>
+      <p>
+        An independent community helper for Microsoft 365 licensing decisions. Built with Astro,
+        MIT-licensed.
+      </p>
+      <p><strong>Not affiliated with or endorsed by Microsoft Corporation.</strong></p>
+    </div>
+    <div class="footer__col">
+      <h4>Site</h4>
+      <ul>
+        {
+          site.map((l) => (
+            <li>
+              <a href={l.href}>{l.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <div class="footer__col">
+      <h4>Source documents</h4>
+      <ul>
+        {
+          sources.map((l) => (
+            <li>
+              <a href={l.href} target="_blank" rel="noopener">
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <div class="footer__col">
+      <h4>Repo</h4>
+      <ul>
+        {
+          repo.map((l) => (
+            <li>
+              <a href={l.href} target="_blank" rel="noopener">
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+  <div class="container footer__bottom">
+    <span
+      >&copy; {year}
+      {BRAND.owner} · MIT Licensed · <span class="footer__version">{APP_VERSION}</span>{
+        buildDateLabel && (
+          <>
+            {" · "}
+            <span class="footer__build-date">
+              Updated <time datetime={buildDateIso}>{buildDateLabel}</time>
+            </span>
+          </>
+        )
+      }</span
+    >
+    <span
+      >Microsoft, Microsoft 365, Azure, Entra, Defender, Purview, Intune, Teams, Copilot are
+      trademarks of Microsoft Corporation. Used in nominative descriptive sense only.</span
+    >
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-top: 4rem;
+    background: var(--footer-bg);
+    color: var(--footer-text);
+    padding: 3rem 0 1.5rem;
+    font-size: var(--fs-sm);
+  }
+  .footer__grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  .footer h4 {
+    color: var(--footer-title);
+    margin: 0 0 0.75rem;
+    font-size: var(--fs-base);
+  }
+  .footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .footer li {
+    margin-bottom: 0.4rem;
+  }
+  .footer a {
+    color: var(--footer-text);
+    text-decoration: none;
+  }
+  .footer a:hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+  .footer__bottom {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    font-size: var(--fs-xs);
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .footer__version {
+    font-family: var(--font-mono);
+    opacity: 0.85;
+  }
+</style>

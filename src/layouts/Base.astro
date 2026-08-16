@@ -1,0 +1,348 @@
+---
+import "@styles/tokens.css";
+import "@styles/base.css";
+import "@styles/components.css";
+import "@styles/print.css";
+import Nav from "@components/Nav.astro";
+import Footer from "@components/Footer.astro";
+import Disclaimer from "@components/Disclaimer.astro";
+import { APP_VERSION, BUILD_DATE } from "@lib/version";
+import { BRAND } from "@lib/brand";
+import { HOME_TITLE, STORAGE_KEYS } from "@lib/site";
+import {
+  baseUrl,
+  canonicalUrl,
+  homeUrl as makeHomeUrl,
+  siteOrigin as makeSiteOrigin,
+} from "@lib/paths";
+import { CSP_META, PERMISSIONS_POLICY, REFERRER_POLICY } from "@lib/security";
+import { CONFIG } from "@lib/config.js";
+import { renderIconDataUri } from "@lib/icons";
+
+export interface Props {
+  title?: string;
+  description?: string;
+  pageClass?: string;
+  hideDisclaimer?: boolean;
+  /** Overrides og:title / twitter:title. Defaults to `title`. */
+  ogTitle?: string;
+  /** Overrides og:description / twitter:description. Defaults to `description`. */
+  ogDescription?: string;
+  /** og:type — "website" | "article" | etc. Defaults to CONFIG.social.ogType. */
+  ogType?: string;
+  /**
+   * Key into CONFIG.social.ogImages — selects the build-generated card at
+   * /og/<slug>.svg. Falls back to the default /og-image.svg if omitted.
+   */
+  ogImageSlug?: string;
+  /** Override the og:image URL outright (rare — use ogImageSlug instead). */
+  ogImage?: string;
+  /** Alt text for og:image / twitter:image. Defaults to CONFIG.social.ogImageAlt. */
+  ogImageAlt?: string;
+  /**
+   * Robots directive for this page. Defaults to CONFIG.seo.robots
+   * (index, follow, max-image-preview:large, …). Set to "noindex, follow" for
+   * thank-you / 404 / utility pages.
+   */
+  robots?: string;
+  /**
+   * Breadcrumb trail for JSON-LD BreadcrumbList. Pages can override the
+   * auto-derived crumbs (from URL path) with a custom list.
+   */
+  breadcrumbs?: { name: string; href: string }[];
+}
+
+const {
+  title = HOME_TITLE,
+  description = CONFIG.defaultDescription,
+  pageClass = "",
+  hideDisclaimer = false,
+  ogTitle,
+  ogDescription,
+  ogType = CONFIG.social.ogType,
+  ogImageSlug,
+  ogImage: ogImageProp,
+  ogImageAlt = CONFIG.social.ogImageAlt,
+  robots = CONFIG.seo.robots,
+  breadcrumbs: breadcrumbsProp,
+} = Astro.props;
+
+const baseTrim = baseUrl();
+const canonical = canonicalUrl(Astro.url.pathname, Astro.site);
+const ogImageDefault = `${baseTrim}/og-image.svg`;
+const ogImagePath = ogImageProp
+  ? ogImageProp
+  : ogImageSlug
+    ? `${baseTrim}/og/${ogImageSlug}.svg`
+    : ogImageDefault;
+// og:image must be absolute per the Open Graph spec.
+const siteOrigin = makeSiteOrigin(Astro.site);
+const ogImageUrl = ogImagePath.startsWith("http") ? ogImagePath : `${siteOrigin}${ogImagePath}`;
+const versionUrl = `${baseTrim}/version.json`;
+const manifestUrl = `${baseTrim}/manifest.webmanifest`;
+
+const homeUrl = makeHomeUrl(Astro.site);
+
+const resolvedOgTitle = ogTitle ?? title;
+const resolvedOgDescription = ogDescription ?? description;
+const ogLocale = CONFIG.social.region
+  ? `${CONFIG.language}_${CONFIG.social.region}`
+  : CONFIG.language;
+
+// Favicon + companion icons are all derived from CONFIG.colors.squares — a
+// single edit retints every surface. The inline data-URI loads zero round-
+// trips; the file-URL variants are advertised for crawlers, PWA installers,
+// iOS home-screen, and Safari pinned tabs.
+const faviconHref = renderIconDataUri({ size: 32, purpose: "any" });
+const maskIconHref = renderIconDataUri({ size: 32, purpose: "monochrome", monoColor: "black" });
+const faviconSvgUrl = `${baseTrim}/favicon.svg`;
+const appleTouchIconUrl = `${baseTrim}/icons/apple-touch-180.svg`;
+
+// Derive a BreadcrumbList from the URL path on every non-home page. Pages
+// can override with a `breadcrumbs` prop.
+function autoBreadcrumbs(pathname: string): { name: string; href: string }[] {
+  const parts = pathname
+    .replace(/^\/+|\/+$/g, "")
+    .split("/")
+    .filter(Boolean);
+  // Skip the leading base-path segment when present (root base means this is a no-op).
+  const baseSeg = baseTrim.replace(/^\/+/, "");
+  const relevant = baseSeg && parts[0] === baseSeg ? parts.slice(1) : parts;
+  if (relevant.length === 0) return [];
+  const crumbs: { name: string; href: string }[] = [{ name: "Home", href: homeUrl }];
+  let acc = baseTrim;
+  for (const seg of relevant) {
+    acc += `/${seg}`;
+    const niceName = seg.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    crumbs.push({
+      name: niceName,
+      href: `${siteOrigin}${acc}`,
+    });
+  }
+  return crumbs;
+}
+
+const crumbs =
+  breadcrumbsProp ?? (CONFIG.seo.emitBreadcrumbs ? autoBreadcrumbs(Astro.url.pathname) : []);
+
+// JSON-LD structured data for search engines and AI crawlers.
+const jsonLdGraph: Record<string, unknown>[] = [
+  {
+    "@type": "WebSite",
+    "@id": `${homeUrl}#website`,
+    url: homeUrl,
+    name: BRAND.name,
+    description: BRAND.tagline,
+    inLanguage: CONFIG.language,
+    publisher: { "@id": `${homeUrl}#person` },
+  },
+  {
+    "@type": "Person",
+    "@id": `${homeUrl}#person`,
+    name: BRAND.owner,
+    url: homeUrl,
+    ...(CONFIG.social.profiles.length > 0 ? { sameAs: [...CONFIG.social.profiles] } : {}),
+  },
+  {
+    "@type": "WebPage",
+    "@id": `${canonical}#page`,
+    url: canonical,
+    name: title,
+    description,
+    isPartOf: { "@id": `${homeUrl}#website` },
+    inLanguage: CONFIG.language,
+    datePublished: BUILD_DATE,
+    dateModified: BUILD_DATE,
+    primaryImageOfPage: { "@type": "ImageObject", url: ogImageUrl },
+  },
+];
+
+if (crumbs.length > 1) {
+  jsonLdGraph.push({
+    "@type": "BreadcrumbList",
+    "@id": `${canonical}#breadcrumbs`,
+    itemListElement: crumbs.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      item: c.href,
+    })),
+  });
+}
+
+const jsonLd = { "@context": "https://schema.org", "@graph": jsonLdGraph };
+---
+
+<!doctype html>
+<html lang={CONFIG.language} dir={CONFIG.direction}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={BRAND.owner} />
+    <meta name="robots" content={robots} />
+    <meta name="googlebot" content={robots} />
+    <meta name="format-detection" content="telephone=no, address=no, email=no" />
+    <meta name="theme-color" content={BRAND.blue} media="(prefers-color-scheme: light)" />
+    <meta
+      name="theme-color"
+      content={CONFIG.seo.themeColorDark}
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="app-version" content={APP_VERSION} />
+    <meta name="build-date" content={BUILD_DATE} />
+
+    <!-- Apple / Microsoft PWA hints (iOS Safari ignores most of the web manifest). -->
+    <meta name="application-name" content={BRAND.name} />
+    <meta name="apple-mobile-web-app-title" content={BRAND.name} />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content={CONFIG.seo.appleStatusBarStyle} />
+    <meta name="msapplication-TileColor" content={BRAND.blue} />
+    <meta name="msapplication-config" content="none" />
+
+    <link rel="canonical" href={canonical} />
+    {
+      CONFIG.seo.emitHreflang && (
+        <>
+          <link rel="alternate" hreflang={CONFIG.language} href={canonical} />
+          <link rel="alternate" hreflang="x-default" href={canonical} />
+        </>
+      )
+    }
+    {CONFIG.social.profiles.map((url) => <link rel="me" href={url} />)}
+
+    <meta property="og:title" content={resolvedOgTitle} />
+    <meta property="og:description" content={resolvedOgDescription} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={BRAND.name} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:image:width" content={String(CONFIG.social.ogImageWidth)} />
+    <meta property="og:image:height" content={String(CONFIG.social.ogImageHeight)} />
+    <meta property="og:image:alt" content={ogImageAlt} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={resolvedOgTitle} />
+    <meta name="twitter:description" content={resolvedOgDescription} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
+    {CONFIG.social.twitterSite && <meta name="twitter:site" content={CONFIG.social.twitterSite} />}
+    {
+      CONFIG.social.twitterCreator && (
+        <meta name="twitter:creator" content={CONFIG.social.twitterCreator} />
+      )
+    }
+    {CONFIG.social.fbAppId && <meta property="fb:app_id" content={CONFIG.social.fbAppId} />}
+
+    <meta http-equiv="Content-Security-Policy" content={CSP_META} />
+    <meta name="referrer" content={REFERRER_POLICY} />
+    <meta http-equiv="Permissions-Policy" content={PERMISSIONS_POLICY} />
+
+    <link rel="icon" type="image/svg+xml" href={faviconHref} />
+    <link rel="icon" type="image/svg+xml" sizes="any" href={faviconSvgUrl} />
+    <link rel="apple-touch-icon" sizes="180x180" href={appleTouchIconUrl} />
+    <link rel="mask-icon" href={maskIconHref} color={BRAND.blue} />
+    <link rel="sitemap" href={`${baseTrim}/sitemap-index.xml`} />
+    <link rel="manifest" href={manifestUrl} />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <script is:inline define:vars={{ themeKey: STORAGE_KEYS.theme }}>
+      (function () {
+        var t = null;
+        try {
+          t = localStorage.getItem(themeKey);
+        } catch (_) {
+          /* ignore */
+        }
+        if (t !== "dark" && t !== "light") {
+          t =
+            window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+        }
+        document.documentElement.setAttribute("data-theme", t);
+      })();
+    </script>
+
+    <script is:inline define:vars={{ versionUrl, APP_VERSION, knownKey: STORAGE_KEYS.knownVersion }}
+    >
+      (function () {
+        // Strip the one-shot cache-buster left behind by a forced reload
+        // (see below). Keeps the URL clean for bookmarks / shares once the
+        // browser is on the fresh build.
+        try {
+          var here = new URL(location.href);
+          if (here.searchParams.get("_v") === APP_VERSION) {
+            here.searchParams.delete("_v");
+            history.replaceState(null, "", here.toString());
+          }
+        } catch (_) {
+          /* ignore */
+        }
+
+        if (!("fetch" in window)) return;
+        try {
+          // version.json is tiny; ?t= + no-store guarantees a fresh response
+          // even if a CDN ignored our Cache-Control header.
+          fetch(versionUrl + "?t=" + Date.now(), { cache: "no-store" })
+            .then(function (r) {
+              return r.ok ? r.json() : null;
+            })
+            .then(function (data) {
+              if (!data || !data.version) return;
+              var seen = null;
+              try {
+                seen = localStorage.getItem(knownKey);
+              } catch (_) {}
+              if (seen && seen !== data.version && data.version !== APP_VERSION) {
+                // New deploy detected but this page was rendered from the
+                // previous build. Clear per-version sessionStorage, then
+                // navigate to a unique URL so the browser cannot serve the
+                // stale HTML from disk cache. location.reload() alone is
+                // not guaranteed to revalidate within the HTML max-age
+                // window on every browser.
+                try {
+                  sessionStorage.clear();
+                } catch (_) {}
+                try {
+                  localStorage.setItem(knownKey, data.version);
+                } catch (_) {}
+                try {
+                  var next = new URL(location.href);
+                  next.searchParams.set("_v", data.version);
+                  location.replace(next.toString());
+                } catch (_) {
+                  location.reload();
+                }
+                return;
+              }
+              try {
+                localStorage.setItem(knownKey, data.version);
+              } catch (_) {}
+            })
+            .catch(function () {
+              /* offline / blocked — ignore */
+            });
+        } catch (_) {
+          /* ignore */
+        }
+      })();
+    </script>
+  </head>
+  <body class={pageClass}>
+    <a href="#main" class="skip-link">Skip to content</a>
+    {!hideDisclaimer && <Disclaimer />}
+    <Nav />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

@@ -1,0 +1,369 @@
+---
+import Base from "@layouts/Base.astro";
+import { getCollection, render } from "astro:content";
+import { pageTitle } from "@lib/site";
+import { baseUrl } from "@lib/paths";
+import { TREE } from "@lib/tree";
+
+const base = baseUrl();
+const tree = TREE;
+const ids = Object.keys(tree);
+
+// Load all MDX explainers and index them by resultId so each reference card
+// can render its matching long-form explainer inline. Missing explainers are
+// fine — the card falls back to its bullets.
+const explainerEntries = await getCollection("explainers");
+const explainerByResultId = new Map<string, (typeof explainerEntries)[number]>();
+for (const e of explainerEntries) {
+  explainerByResultId.set(e.data.resultId, e);
+}
+
+// Pre-render the MDX bodies so we can use them in the template below.
+const explainerContent = new Map<string, Awaited<ReturnType<typeof render>>>();
+for (const [id, entry] of explainerByResultId) {
+  explainerContent.set(id, await render(entry));
+}
+
+// Group results into rough buckets by id prefix for navigability.
+const groups: { key: string; title: string; match: (id: string) => boolean }[] = [
+  {
+    key: "admin",
+    title: "Privileged admin",
+    match: (id) =>
+      id.startsWith("result_") &&
+      /service|service_principal|teams_premium|id_governance|entra_suite|break_glass|no_license_admin|copilot|p2_|defender_suite_only|intune_/.test(
+        id
+      ) &&
+      !id.startsWith("result_iw_") &&
+      !id.startsWith("result_smb_"),
+  },
+  {
+    key: "iw",
+    title: "Information worker",
+    match: (id) =>
+      id.startsWith("result_iw_") ||
+      id === "result_e5_full" ||
+      id === "result_e5_compliance_only" ||
+      id === "result_e7_full",
+  },
+  { key: "smb", title: "SMB", match: (id) => id.startsWith("result_smb_") },
+  {
+    key: "edu",
+    title: "Education",
+    match: (id) => id.startsWith("result_edu_") || id.startsWith("result_a"),
+  },
+  {
+    key: "gov",
+    title: "Government",
+    match: (id) => id.startsWith("result_gov_") || id.startsWith("result_g"),
+  },
+  { key: "npo", title: "Nonprofit", match: (id) => id.startsWith("result_npo_") },
+  {
+    key: "frontline",
+    title: "Frontline",
+    match: (id) =>
+      id.startsWith("result_frontline_") ||
+      id.startsWith("result_f1") ||
+      id.startsWith("result_f3"),
+  },
+  {
+    key: "extid",
+    title: "External ID / B2B / CIAM",
+    match: (id) => id.startsWith("result_extid_"),
+  },
+];
+
+const results = ids
+  .map((id) => ({ id, node: tree[id] }))
+  .filter((r): r is { id: string; node: NonNullable<typeof r.node> } => Boolean(r.node?.result));
+
+const grouped = groups.map((g) => ({
+  ...g,
+  items: results.filter((r) => g.match(r.id)),
+}));
+const ungrouped = results.filter((r) => !grouped.some((g) => g.items.includes(r)));
+
+const title = pageTitle("Reference");
+const description =
+  "Browsable static catalog of every recommendation the decision tree can produce, with sources cited.";
+---
+
+<Base title={title} description={description} ogImageSlug="reference">
+  <section class="section">
+    <div class="container">
+      <header class="page-header">
+        <p class="eyebrow">Reference catalog</p>
+        <h1>Every recommendation, one page each</h1>
+        <p class="lede">
+          Static, citation-linked view of every result node in the decision tree — useful when you
+          already know the answer and just need the SKU details and the Microsoft Learn references.
+          Generated at build time from the same data the assessment uses.
+        </p>
+        <label class="ref-search-wrap">
+          <span class="visually-hidden">Filter recommendations</span>
+          <input
+            type="search"
+            class="ref-search"
+            placeholder="Filter by SKU, profile, or keyword (e.g. Copilot, F3, Defender, Cloud PC)…"
+            autocomplete="off"
+            aria-label="Filter recommendations"
+          />
+          <span class="ref-search__count" aria-live="polite"></span>
+        </label>
+      </header>
+
+      {
+        grouped.map(
+          (g) =>
+            g.items.length > 0 && (
+              <section class="ref-section">
+                <h2>{g.title}</h2>
+                <div class="grid grid--2">
+                  {g.items.map(({ id, node }) => {
+                    const exp = explainerContent.get(id);
+                    const Content = exp?.Content;
+                    const bullets = node.bullets ?? [];
+                    const sources = node.docs ?? node.techDocs ?? [];
+                    return (
+                      <article
+                        class="card ref-card"
+                        id={id}
+                        data-search={[id, node.title, node.sub ?? "", node.badge ?? "", ...bullets]
+                          .join(" ")
+                          .toLowerCase()}
+                      >
+                        {node.badge && (
+                          <span class={`badge ${node.badgeClass ?? "badge-success"}`}>
+                            {node.badge}
+                          </span>
+                        )}
+                        <h3>{node.title}</h3>
+                        {node.sub && <p class="ref-card__sub">{node.sub}</p>}
+                        {bullets.length > 0 && (
+                          <ul class="ref-card__bullets">
+                            {bullets.slice(0, 4).map((b: string) => (
+                              <li>{b}</li>
+                            ))}
+                          </ul>
+                        )}
+                        {Content && (
+                          <details class="ref-card__explainer">
+                            <summary>Plain-English explainer</summary>
+                            <div class="prose">
+                              <Content />
+                            </div>
+                          </details>
+                        )}
+                        {sources.length > 0 && (
+                          <details class="ref-card__sources">
+                            <summary>
+                              {sources.length} source{sources.length === 1 ? "" : "s"}
+                            </summary>
+                            <ol>
+                              {sources.map(([label, url]: [string, string]) => (
+                                <li>
+                                  <a href={url} target="_blank" rel="noopener">
+                                    {label}
+                                  </a>
+                                </li>
+                              ))}
+                            </ol>
+                          </details>
+                        )}
+                        <a class="ref-card__cta" href={`${base}/assessment?entry=${id}`}>
+                          Run the tree to land here →
+                        </a>
+                      </article>
+                    );
+                  })}
+                </div>
+              </section>
+            )
+        )
+      }
+
+      {
+        ungrouped.length > 0 && (
+          <section class="ref-section">
+            <h2>Other results</h2>
+            <div class="grid grid--2">
+              {ungrouped.map(({ id, node }) => (
+                <article
+                  class="card ref-card"
+                  id={id}
+                  data-search={[id, node.title, node.sub ?? ""].join(" ").toLowerCase()}
+                >
+                  <h3>{node.title}</h3>
+                  {node.sub && <p class="ref-card__sub">{node.sub}</p>}
+                </article>
+              ))}
+            </div>
+          </section>
+        )
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-header {
+    max-width: 760px;
+    margin: 0 0 2.5rem;
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    color: var(--ms-blue);
+    font-weight: 700;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.1em;
+    margin: 0 0 0.25rem;
+  }
+  .lede {
+    color: var(--color-text-soft);
+    font-size: var(--fs-md);
+    margin-top: 0.5rem;
+  }
+
+  .ref-section {
+    margin-bottom: 3rem;
+  }
+  .ref-section h2 {
+    border-bottom: 2px solid var(--ms-blue);
+    padding-bottom: 0.4rem;
+    margin-bottom: 1.5rem;
+    font-size: var(--fs-xl);
+  }
+
+  .ref-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    scroll-margin-top: 80px;
+  }
+  .ref-card h3 {
+    margin: 0.5rem 0 0.25rem;
+    font-size: var(--fs-md);
+  }
+  .ref-card__sub {
+    color: var(--color-text-soft);
+    margin: 0;
+    font-size: var(--fs-sm);
+  }
+  .ref-card__bullets {
+    margin: 0.5rem 0;
+    padding-left: 1.25rem;
+    color: var(--color-text-soft);
+    font-size: var(--fs-sm);
+  }
+  .ref-card__bullets li {
+    margin-bottom: 0.25rem;
+  }
+  .ref-card__sources summary {
+    cursor: pointer;
+    font-size: var(--fs-xs);
+    color: var(--ms-blue);
+    font-weight: 600;
+  }
+  .ref-card__sources ol {
+    margin: 0.5rem 0 0 1.25rem;
+    font-size: var(--fs-xs);
+  }
+  .ref-card__sources li {
+    margin-bottom: 0.25rem;
+  }
+  .ref-card__explainer summary {
+    cursor: pointer;
+    font-size: var(--fs-xs);
+    color: var(--ms-blue);
+    font-weight: 600;
+    margin: 0.25rem 0;
+  }
+  .ref-card__explainer .prose {
+    font-size: var(--fs-sm);
+    color: var(--color-text-soft);
+    padding-top: 0.5rem;
+  }
+  .ref-card__explainer .prose :global(p) {
+    margin: 0.5rem 0;
+  }
+  .ref-card__explainer .prose :global(ul) {
+    margin: 0.5rem 0;
+    padding-left: 1.25rem;
+  }
+  .ref-card__cta {
+    margin-top: auto;
+    color: var(--ms-blue);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+  }
+  .ref-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    max-width: 760px;
+  }
+  .ref-search {
+    flex: 1;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--color-border, #d0d0d0);
+    border-radius: var(--radius-md, 6px);
+    font-size: var(--fs-md);
+    font-family: inherit;
+    background: var(--color-bg, #fff);
+    color: var(--color-text, #111);
+  }
+  .ref-search:focus {
+    outline: 2px solid var(--ms-blue);
+    outline-offset: 1px;
+  }
+  .ref-search__count {
+    color: var(--color-text-soft);
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .ref-section[hidden] {
+    display: none;
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    const input = document.querySelector(".ref-search");
+    const count = document.querySelector(".ref-search__count");
+    if (!input || !count) return;
+    const cards = Array.from(document.querySelectorAll(".ref-card[data-search]"));
+    const sections = Array.from(document.querySelectorAll(".ref-section"));
+    const total = cards.length;
+    function render() {
+      const q = input.value.trim().toLowerCase();
+      let visible = 0;
+      for (const card of cards) {
+        const hay = card.getAttribute("data-search") || "";
+        const match = q === "" || hay.includes(q);
+        card.style.display = match ? "" : "none";
+        if (match) visible++;
+      }
+      // Hide sections that have zero visible cards
+      for (const section of sections) {
+        const sectionCards = section.querySelectorAll(".ref-card[data-search]");
+        const anyVisible = Array.from(sectionCards).some((c) => c.style.display !== "none");
+        section.toggleAttribute("hidden", sectionCards.length > 0 && !anyVisible);
+      }
+      count.textContent = q ? `${visible} of ${total} match` : `${total} results`;
+    }
+    input.addEventListener("input", render);
+    render();
+  })();
+</script>

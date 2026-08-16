@@ -1,0 +1,81 @@
+---
+import Base from "@layouts/Base.astro";
+import { siteLinks } from "@lib/links";
+import { pageTitle } from "@lib/site";
+import { baseUrl } from "@lib/paths";
+
+const base = baseUrl();
+const links = siteLinks(base);
+---
+
+<Base
+  title={pageTitle("Page not found")}
+  description="The page you requested could not be found."
+  hideDisclaimer={true}
+  ogImageSlug="404"
+  robots="noindex, follow"
+>
+  <section class="section section--accent">
+    <div class="container container--prose center">
+      <p class="eyebrow">404</p>
+      <h1>Page not found</h1>
+      <p>
+        The page you requested doesn't exist on this site. It may have been moved, renamed, or never
+        existed at all.
+      </p>
+
+      <div class="btn-row" style="justify-content:center;margin:1.5rem 0">
+        <a class="btn btn-primary" href={`${base}/`}>← Home</a>
+        <a class="btn btn-secondary" href={`${base}/assessment`}>Start the assessment</a>
+      </div>
+
+      <h2>Or jump straight to:</h2>
+      <ul class="quicklinks">
+        {
+          links.map((l) => (
+            <li>
+              <a href={l.href}>{l.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .center {
+    text-align: center;
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    color: var(--ms-blue);
+    font-weight: 700;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.1em;
+  }
+  .quicklinks {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+  .quicklinks a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: var(--fs-sm);
+    text-decoration: none;
+  }
+  .quicklinks a:hover {
+    background: var(--ms-blue-lighter);
+    border-color: var(--ms-blue);
+    color: var(--ms-blue);
+  }
+</style>

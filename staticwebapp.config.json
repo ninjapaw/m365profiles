@@ -1,0 +1,16 @@
+{
+  "trailingSlash": "auto",
+  "navigationFallback": {
+    "rewrite": "/404.html",
+    "exclude": ["/icons/*.svg", "/og/*.svg", "*.{css,js,json,xml,txt,webmanifest,svg,png,jpg,ico}"]
+  },
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/404.html",
+      "statusCode": 404
+    }
+  },
+  "mimeTypes": {
+    ".webmanifest": "application/manifest+json"
+  }
+}

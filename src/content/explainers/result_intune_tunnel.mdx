@@ -1,0 +1,53 @@
+---
+title: "Microsoft Tunnel for MAM — standalone"
+resultId: "result_intune_tunnel"
+profile: "admin"
+summary: "Per-app VPN on unmanaged iOS / Android devices. Tunnel for ENROLLED MDM devices is already free in base Intune."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because the user needs **Microsoft Tunnel for MAM** —
+per-app VPN access on **unmanaged** iOS / Android devices (typically BYOD
+scenarios where MDM enrollment is not in scope) — and no other Intune
+premium feature is in scope.
+
+**Critical distinction — two different "Tunnels":**
+
+- **Microsoft Tunnel (for enrolled MDM devices)** = **already included
+  in base Intune**. No add-on needed. If your devices are Intune-enrolled,
+  you can use Tunnel today at no extra cost.
+- **Microsoft Tunnel for MAM** = the **paid standalone add-on**. Enables
+  the same per-app VPN on devices that are **not** MDM-enrolled — only
+  protected via Mobile Application Management (MAM) policies on managed
+  apps like Outlook, Edge, Teams.
+
+If your devices are enrolled, you don't need this SKU. If they're not
+enrolled (BYOD, contractors, partner devices), you do.
+
+**What Tunnel for MAM enables:**
+
+- Per-app VPN traffic from MAM-protected apps to on-prem resources behind
+  the corporate firewall.
+- No full-device VPN — only the protected app's traffic is tunneled.
+- Tied to the MAM policy on the app; user can't bypass the tunnel for
+  that app's corporate access.
+
+**The "one feature only" math:**
+
+The Intune Suite bundles all six premium features. If Tunnel for MAM is
+the only one this user needs, paying for the bundle is wasteful. Tunnel
+for MAM standalone covers exactly this scenario.
+
+> **Re-evaluate the moment a second Intune premium feature comes into
+> scope** for the same user — at two premium features, the Intune Suite
+> usually wins.
+
+**Adjacent option to evaluate:** if you're standing up corporate-resource
+access for a large internal population, **Microsoft Entra Private Access**
+(part of the Entra Suite) may be a stronger fit than Tunnel for MAM —
+it's a modern ZTNA replacement for traditional VPN. Tunnel for MAM
+remains the right answer for the narrow "BYOD with no MDM" scenario.
+
+**Not bundled:** Entra ID P2. License separately if the same admins
+operate PIM / Identity Protection.

@@ -1,0 +1,549 @@
+/* Reusable component classes — buttons, cards, badges, callouts,
+   footnotes, progress, disclaimer banner, grid utilities. */
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 0.65em 1.25em;
+  font: inherit;
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  line-height: 1.2;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s,
+    transform 0.05s;
+  white-space: nowrap;
+}
+.btn:hover {
+  text-decoration: none;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--ms-blue);
+  outline-offset: 2px;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn[disabled],
+.btn[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.btn-primary {
+  background: var(--ms-blue);
+  border-color: var(--ms-blue);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--ms-blue-dark);
+  border-color: var(--ms-blue-dark);
+}
+
+.btn-secondary {
+  background: var(--color-bg);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+.btn-secondary:hover {
+  background: var(--color-bg-tint);
+  border-color: var(--ms-blue);
+  color: var(--ms-blue);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-text-soft);
+}
+.btn-ghost:hover {
+  background: var(--color-bg-tint);
+  color: var(--color-text);
+}
+
+.btn-danger {
+  background: var(--color-error);
+  border-color: var(--color-error);
+  color: #fff;
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Cards */
+.card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+}
+:root[data-theme="dark"] .card {
+  background: var(--color-bg-alt);
+}
+
+.card--interactive {
+  cursor: pointer;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s,
+    border-color 0.15s;
+}
+.card--interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--ms-blue);
+}
+
+.card__eyebrow {
+  display: block;
+  text-transform: uppercase;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.card__title {
+  margin: 0 0 0.5rem;
+  font-size: var(--fs-xl);
+}
+.card__sub {
+  color: var(--color-text-soft);
+  margin: 0 0 1rem;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.75em;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+}
+.badge-success {
+  background: #dff6dd;
+  color: #0e6027;
+  border-color: #b6e3b6;
+}
+.badge-warning {
+  background: #fff4ce;
+  color: #6b4a05;
+  border-color: #f7e3a6;
+}
+.badge-info {
+  background: var(--ms-blue-lighter);
+  color: var(--ms-blue-darker);
+  border-color: #b8daff;
+}
+.badge-premium {
+  background: #ede5f6;
+  color: var(--color-purple);
+  border-color: #d4c0eb;
+}
+.badge-danger {
+  background: #fde7e9;
+  color: #8a141a;
+  border-color: #f5b5ba;
+}
+
+:root[data-theme="dark"] .badge-success {
+  background: #173723;
+  color: #7ee787;
+  border-color: #2a5337;
+}
+:root[data-theme="dark"] .badge-warning {
+  background: #3f2b13;
+  color: #fdb863;
+  border-color: #5a3f1f;
+}
+:root[data-theme="dark"] .badge-info {
+  background: #173a63;
+  color: #8ecbff;
+  border-color: #2a558a;
+}
+:root[data-theme="dark"] .badge-premium {
+  background: #2f2445;
+  color: #d8b4fe;
+  border-color: #463566;
+}
+:root[data-theme="dark"] .badge-danger {
+  background: #3a1416;
+  color: #fb7185;
+  border-color: #5a1f23;
+}
+
+/* Callouts */
+.callout {
+  border-left: 4px solid var(--ms-blue);
+  background: var(--ms-blue-lighter);
+  padding: 1rem 1.25rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: 1.5rem 0;
+}
+.callout--warn {
+  border-left-color: var(--color-warning);
+  background: #fff4ce33;
+}
+.callout--danger {
+  border-left-color: var(--color-error);
+  background: #fde7e933;
+}
+
+:root[data-theme="dark"] .callout {
+  background: #16253a;
+  border-left-color: #3ea6ff;
+}
+:root[data-theme="dark"] .callout--warn {
+  background: #2a1f0f;
+  border-left-color: #fbbf24;
+}
+:root[data-theme="dark"] .callout--danger {
+  background: #2b1416;
+  border-left-color: #fb7185;
+}
+
+/* Footnotes */
+.footnote-ref {
+  display: inline-block;
+  font-size: 0.7em;
+  vertical-align: super;
+  font-weight: 600;
+  color: var(--ms-blue);
+  padding: 0 0.15em;
+  text-decoration: none;
+}
+.footnote-ref::before {
+  content: "[";
+}
+.footnote-ref::after {
+  content: "]";
+}
+
+.footnotes {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+  font-size: var(--fs-sm);
+  color: var(--color-text-soft);
+}
+.footnotes__title {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+}
+.footnotes__list {
+  margin: 0;
+  padding-left: 1.75em;
+}
+.footnotes__list li {
+  margin-bottom: 0.4rem;
+  line-height: 1.5;
+}
+.footnotes__terms {
+  margin: 1rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--color-border);
+  font-size: var(--fs-xs);
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+.footnotes__terms a {
+  color: var(--ms-blue);
+}
+
+/* Progress */
+.step-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.step-progress__meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.step-progress__bar {
+  height: 6px;
+  background: var(--color-bg-tint);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.step-progress__fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--ms-square-1),
+    var(--ms-square-4),
+    var(--ms-square-2),
+    var(--ms-square-3)
+  );
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+
+/* Disclaimer banner */
+.disclaimer {
+  background: #fff4ce;
+  color: #5a3e08;
+  border-bottom: 1px solid #f0d896;
+  padding: 0.6rem 20px;
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+.disclaimer strong {
+  color: #4a3306;
+}
+:root[data-theme="dark"] .disclaimer {
+  background: #2a1f0f;
+  color: #fbd38d;
+  border-bottom-color: #5a3f1f;
+}
+:root[data-theme="dark"] .disclaimer strong {
+  color: #fbd38d;
+}
+
+/* Sections + grid */
+.section {
+  padding: 3rem 0;
+}
+.section--accent {
+  background: linear-gradient(180deg, var(--ms-blue-lighter) 0%, var(--color-bg) 100%);
+}
+:root[data-theme="dark"] .section--accent {
+  background: linear-gradient(180deg, #162033 0%, #111827 100%);
+}
+
+.grid {
+  display: grid;
+  gap: 1.25rem;
+}
+.grid--2 {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.grid--3 {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+/* Frontline wizard — computed result card */
+.frontline-computed {
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.frontline-callout {
+  border-left: 4px solid var(--ms-blue);
+  background: var(--ms-blue-lighter);
+  padding: 0.85rem 1.1rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 0.95em;
+}
+.frontline-callout--ai {
+  border-left-color: #7c3aed;
+  background: #ede9fe66;
+}
+.frontline-callout--warn {
+  border-left-color: var(--color-warning);
+  background: #fff4ce33;
+}
+:root[data-theme="dark"] .frontline-callout--ai {
+  background: #1f1735;
+  border-left-color: #a78bfa;
+}
+:root[data-theme="dark"] .frontline-callout--warn {
+  background: #2a1f0f;
+  border-left-color: #fbbf24;
+}
+.frontline-callout p {
+  margin: 0 0 0.35rem;
+}
+.frontline-callout ul {
+  margin: 0.25rem 0 0 1.1rem;
+  padding: 0;
+}
+.frontline-calc__heading {
+  font-size: 1.05rem;
+  margin: 0.25rem 0 0;
+  font-weight: 700;
+}
+.frontline-calc,
+.frontline-compare {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92em;
+}
+.frontline-calc th,
+.frontline-calc td,
+.frontline-compare th,
+.frontline-compare td {
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  vertical-align: top;
+}
+.frontline-calc th,
+.frontline-compare th {
+  background: var(--ms-blue-lighter);
+  font-weight: 600;
+}
+.frontline-calc__cost {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.frontline-calc__row--total td {
+  background: var(--ms-blue-lighter);
+  border-top: 2px solid var(--ms-blue);
+}
+.frontline-compare__row--rec td {
+  background: #ecfdf5;
+  font-weight: 600;
+}
+:root[data-theme="dark"] .frontline-calc th,
+:root[data-theme="dark"] .frontline-compare th {
+  background: #16253a;
+}
+:root[data-theme="dark"] .frontline-calc__row--total td {
+  background: #16253a;
+}
+:root[data-theme="dark"] .frontline-compare__row--rec td {
+  background: #052e21;
+  color: #6ee7b7;
+}
+.frontline-reasoning {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+.frontline-reasoning li {
+  margin-bottom: 0.35rem;
+}
+
+.frontline-callout__source {
+  margin: 0.35rem 0 0;
+  font-size: 0.85em;
+  color: var(--color-muted, #6b7280);
+}
+.frontline-callout__source a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* Result-pricing panel — static per-result cost breakdown + comparison bar
+ * chart + AI reasoning + privileged-admin lens. Reuses .frontline-computed,
+ * .frontline-callout, .frontline-calc, .frontline-compare, .frontline-reasoning
+ * for layout consistency with the frontline computed wizard result. */
+.result-pricing {
+  /* No additional margin — inherits .frontline-computed gap. */
+}
+/* Privileged-admin lens callout — distinct accent so it reads as
+ * cross-reference, not advice. Only shown when the user picked the
+ * privileged-admin profile at the start. */
+.result-pricing__priv-admin {
+  border-left-color: #d97706;
+  background: #fffbeb;
+}
+:root[data-theme="dark"] .result-pricing__priv-admin {
+  background: #2a1f0a;
+  border-left-color: #f59e0b;
+}
+.result-pricing__priv-admin a {
+  color: var(--ms-blue);
+  text-decoration: underline;
+  font-weight: 600;
+}
+:root[data-theme="dark"] .result-pricing__priv-admin a {
+  color: #93c5fd;
+}
+/* Specialty-priced SKUs (E7, A/G-SKUs, Nonprofit, External ID) — render
+ * "—" in cost cells instead of $0 to be honest about no flat list price. */
+.result-pricing__cost-na {
+  color: var(--color-muted, #6b7280);
+  font-style: italic;
+}
+/* CSS-only bar chart for the comparison table. The bar div sits as a
+ * background layer in the chart cell with width proportional to cost /
+ * maxCost. The numeric label sits on top via z-index. */
+.result-pricing__chart .result-pricing__chart-cell {
+  position: relative;
+  min-width: 14rem;
+  padding-right: 1rem;
+}
+.result-pricing__chart-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 1.6rem;
+}
+.result-pricing__bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    var(--ms-blue-lighter, #e6f1ff) 0%,
+    var(--ms-blue-light, #c7dfff) 100%
+  );
+  border-radius: 0.25rem;
+  z-index: 0;
+  transition: width 0.3s ease;
+}
+.result-pricing__bar--rec {
+  background: linear-gradient(90deg, #d1fae5 0%, #6ee7b7 100%);
+}
+:root[data-theme="dark"] .result-pricing__bar {
+  background: linear-gradient(90deg, #1e3a5f 0%, #2563eb 100%);
+  opacity: 0.55;
+}
+:root[data-theme="dark"] .result-pricing__bar--rec {
+  background: linear-gradient(90deg, #064e3b 0%, #047857 100%);
+  opacity: 0.75;
+}
+.result-pricing__bar-label {
+  position: relative;
+  z-index: 1;
+  padding: 0 0.55rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+}
+:root[data-theme="dark"] .result-pricing__bar-label {
+  color: #f3f4f6;
+}
+
+@media print {
+  /* Print fallback — bars use background-color so browsers that drop
+   * gradients in print still render a flat shaded bar. */
+  .result-pricing__bar {
+    background: #e6f1ff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .result-pricing__bar--rec {
+    background: #d1fae5 !important;
+  }
+}

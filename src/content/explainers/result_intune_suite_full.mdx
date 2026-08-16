@@ -1,0 +1,38 @@
+---
+title: "Microsoft Intune Suite — when bundling beats add-on math"
+resultId: "result_intune_suite_full"
+profile: "admin"
+summary: "When the Intune Suite SKU saves money over individual Intune add-ons (Remote Help, EPM, Cloud PKI, Tunnel, AEA)."
+authored: "2025-11"
+aiAssisted: true
+---
+
+The Intune Suite bundles every Intune add-on into a single per-seat SKU:
+
+- **Endpoint Privilege Management (EPM)** — local admin elevation without
+  granting full admin rights.
+- **Remote Help** — assisted-session helpdesk tooling.
+- **Microsoft Cloud PKI** — managed certificate authority.
+- **Microsoft Tunnel for Mobile Application Management** — per-app VPN for
+  iOS/Android.
+- **Advanced Endpoint Analytics (AEA)** — Anomaly detection + medallion
+  reporting.
+- **Enterprise Application Management (EAM)** — packaged-app catalog.
+
+**Buy the Suite when** the tenant needs **three or more** of those add-ons. The
+break-even point is roughly there: under three, individual add-ons win; three
+or more, the Suite is cheaper per seat and easier to license.
+
+**Skip the Suite when:**
+
+- You only need one or two add-ons (e.g. Remote Help + Cloud PKI). Buy
+  those two individually.
+- You don't manage iOS/Android at scale — Microsoft Tunnel and parts of EPM
+  become wasted spend.
+- Your CA is already Active Directory Certificate Services or a third party
+  you're keeping — Cloud PKI is the headline value of the Suite, and removing
+  it usually tips the math back to individual add-ons.
+
+> **License stacking note:** All Intune add-ons require an underlying Intune
+> Plan 1 license (which is included in E3/E5/Business Premium/F3). The Suite
+> does not replace that base entitlement.

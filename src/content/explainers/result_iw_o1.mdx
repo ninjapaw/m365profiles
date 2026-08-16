@@ -1,0 +1,58 @@
+---
+title: "Office 365 E1 — cloud collab without installed Office"
+resultId: "result_iw_o1"
+profile: "iw"
+summary: "Cheapest Enterprise O365 tier. Cloud mail (50 GB) + Teams + SharePoint + OneDrive + Office for the web / mobile. No installed desktop Office. No Windows / Intune / Entra ID P1."
+authored: "2026-05"
+aiAssisted: true
+---
+
+Office 365 E1 is the **cheapest Enterprise-class Microsoft cloud collab SKU** —
+roughly **$10 / user / month** in commercial pricing. It's the right answer when
+the user lives in the browser and on a phone, and the org licenses Windows +
+Intune + Entra ID separately (or not at all).
+
+You get:
+
+- **Exchange Online Plan 1** — 50 GB mailbox, Outlook on the web, Outlook
+  mobile, Exchange Online Protection.
+- **Microsoft Teams** — chat, meetings, calling (PSTN extra), Walkie Talkie,
+  Shifts, Tasks. Same Teams as every other M365 / O365 tier.
+- **SharePoint Online + OneDrive for Business** — 1 TB user storage, document
+  libraries, site collections, modern intranet.
+- **Office for the web** — Word, Excel, PowerPoint, Outlook, OneNote running in
+  the browser. Office mobile apps with commercial-use rights on devices with a
+  screen **≤ 10.9 inches** (iPhones and most Android phones qualify; iPads and
+  Surface tablets generally don't).
+
+You do **not** get:
+
+- Installed desktop Office apps. No installed Outlook, Word, Excel, or
+  PowerPoint on Windows or Mac.
+- Windows licence, Microsoft Intune, Microsoft Entra ID P1 — none of the EMS
+  stack. Add **EMS E3** (~$10.60 / user / month) if Conditional Access / Intune
+  is needed, or buy Entra ID P1 standalone.
+- Any premium Defender or Purview features (you get Exchange Online Protection
+  and baseline DLP, nothing more).
+
+### When this is the right answer
+
+- **Web-first users** — store managers, contact-center agents, field staff who
+  primarily use shared kiosks or BYO phones, frontline-adjacent knowledge
+  workers who don't fit F1/F3 eligibility but still live in the browser.
+- **Low-touch contractors / vendors** who need a real Exchange mailbox but won't
+  install Office locally.
+- **Education / training environments** where Office is delivered via the
+  browser.
+
+### When to step up
+
+- **Need installed desktop Office** → step up to Office 365 E3.
+- **Need E5-tier premium** (Defender for Office P2, Audit Premium, Power BI Pro,
+  Teams Phone Standard) → Office 365 E5.
+- **Need Windows + Intune + Entra ID P1 bundled** → Microsoft 365 E3 or E5.
+
+> **EEA note.** EU / EEA customers buy the **"Office 365 E1 (no Teams) EEA"**
+> SKU + **Microsoft Teams Enterprise** as a separate per-user SKU per the
+> post-antitrust packaging change. Same features, just split into two line
+> items.

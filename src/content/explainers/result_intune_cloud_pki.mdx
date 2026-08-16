@@ -1,0 +1,57 @@
+---
+title: "Microsoft Cloud PKI — standalone"
+resultId: "result_intune_cloud_pki"
+profile: "admin"
+summary: "Managed cloud PKI for device + user certificates. Removes on-prem AD CS for certificate-based auth scenarios."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because the user / environment needs **Microsoft Cloud
+PKI** — Microsoft's managed cloud PKI service that issues device and user
+certificates to Intune-managed endpoints — and no other Intune premium
+feature is in scope.
+
+**What Cloud PKI replaces:**
+
+- On-prem Active Directory Certificate Services (AD CS) for the
+  Intune-managed-endpoint use case.
+- Custom NDES / SCEP connector infrastructure for certificate issuance
+  to mobile devices.
+- The operational burden of maintaining a private CA hierarchy, CRLs,
+  OCSP responders, HSMs, certificate lifecycle automation — Microsoft
+  runs the CA, you consume the API.
+
+**What it issues certificates for:**
+
+- **Wi-Fi** (EAP-TLS / PEAP-TLS) — 802.1X certificate-based authentication.
+- **VPN** — certificate-based authentication to corporate VPN.
+- **SCEP / PKCS** — certificate-based authentication for Exchange ActiveSync,
+  internal web apps, or any scenario that needs an X.509 device or user cert.
+- **Authentication to AD CS-protected services** via cross-signed root.
+
+**How it integrates with Intune:**
+
+- Configure Cloud PKI as the issuing CA in an Intune SCEP or PKCS profile.
+- The profile targets Intune-managed devices; certificates are
+  auto-issued, auto-renewed, and auto-revoked on device retirement.
+
+**The "one feature only" math:**
+
+The Intune Suite bundles all six premium features. If Cloud PKI is the
+only one this user needs, paying for the bundle is wasteful. Cloud PKI
+standalone covers exactly this scenario.
+
+> **Re-evaluate the moment a second Intune premium feature comes into
+> scope** for the same user — at two premium features, the Intune Suite
+> usually wins.
+
+> **Cloud PKI is per-user-licensed but is fundamentally an
+> infrastructure decision.** Once you commit to it as your PKI source for
+> Wi-Fi / VPN / SCEP, every Intune-managed user needing those
+> credentials needs the license. Plan as an infrastructure deployment,
+> not a per-user feature decision — and confirm scoping with your
+> Microsoft account team if you're rolling it out broadly.
+
+**Not bundled:** Entra ID P2. License separately if admins also operate
+PIM / Identity Protection.

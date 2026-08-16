@@ -1,0 +1,48 @@
+# Auto-detect text files and normalize line endings on commit.
+* text=auto eol=lf
+
+# Source files — always LF
+*.ts        text eol=lf
+*.tsx       text eol=lf
+*.js        text eol=lf
+*.mjs       text eol=lf
+*.cjs       text eol=lf
+*.json      text eol=lf
+*.jsonc     text eol=lf
+*.astro     text eol=lf
+*.css       text eol=lf
+*.html      text eol=lf
+*.md        text eol=lf
+*.mdx       text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.svg       text eol=lf
+*.txt       text eol=lf
+.editorconfig text eol=lf
+.gitignore    text eol=lf
+.gitattributes text eol=lf
+
+# Shell scripts — LF
+*.sh        text eol=lf
+
+# Lockfile — text, no merge driver
+package-lock.json text eol=lf merge=union
+
+# Binary assets — never diff or normalize
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.webp      binary
+*.ico       binary
+*.pdf       binary
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.otf       binary
+
+# Exclude from GitHub language stats / linguist
+node_modules/** linguist-vendored
+dist/**         linguist-generated
+.astro/**       linguist-generated
+src/data/tree.js linguist-detectable=true

@@ -1,0 +1,64 @@
+---
+title: "Office 365 E3 — Office cloud productivity without the M365 bundle"
+resultId: "result_iw_o3"
+profile: "iw"
+summary: "Office cloud collab + installed desktop Office apps. Same productivity stack as Microsoft 365 E3 minus Windows / Intune / Entra ID P1 — roughly $13 / user / month cheaper."
+authored: "2026-05"
+aiAssisted: true
+---
+
+Office 365 E3 is the **workhorse O365 tier** — roughly **$23 / user / month** in
+commercial pricing, about **$13 / user / month** less than Microsoft 365 E3.
+It's the right answer when the user needs cloud collab + installed Office, but
+the org licenses Windows + Intune + Entra ID separately (BYOD, Mac / Linux
+fleets, third-party MDM, existing EMS-only deal, or Windows handled by
+procurement under Volume Licensing).
+
+You get:
+
+- **Installed Office desktop apps** — Word, Excel, PowerPoint, Outlook, OneNote,
+  Access, Publisher (Windows) and Word / Excel / PowerPoint / Outlook (Mac) on
+  up to 5 PCs / Macs + 5 tablets + 5 phones per user.
+- **Exchange Online Plan 2** — 100 GB mailbox + unlimited online archive
+  (auto-expanding to 1.5 TB).
+- **Microsoft Teams + SharePoint Online + OneDrive for Business** (1 TB+,
+  expandable).
+- **Microsoft Purview baseline** — manual sensitivity labels, basic eDiscovery,
+  baseline DLP, Office Message Encryption.
+- **Microsoft Defender for Office 365 Plan 1** — Safe Links / Safe Attachments /
+  anti-phish basic.
+- **Azure Information Protection P1**.
+
+You do **not** get:
+
+- Windows licence, Microsoft Intune, Microsoft Entra ID P1 — add **EMS E3**
+  (~$10.60 / user / month) to layer those on (Office 365 E3 + EMS E3 ≈ Microsoft
+  365 E3 in features, paid as two line items).
+- Defender for Endpoint, Defender for Identity, Defender for Cloud Apps, Defender
+  XDR — none of the Defender Suite.
+- Purview E5 — no IRM, no Communication Compliance, no Audit Premium, no
+  eDiscovery Premium, no Customer Lockbox.
+- Entra ID P2 — no PIM, no Identity Protection, no access reviews.
+
+### When this is the right answer
+
+- **Mac / Linux engineering shops** where Windows licence has no value and the
+  org runs Jamf / third-party MDM.
+- **BYOD knowledge workers** where the org pays for the device through stipends
+  and doesn't enrol them in Intune.
+- **Customers with a separate EMS / Windows VL deal** where M365 bundling would
+  double-pay.
+- **Compliance-light environments** where the standard Purview baseline +
+  Defender for Office P1 is enough and Defender Suite isn't needed.
+
+### When to step up
+
+- **Need E5-tier premium** (Defender for Office P2, Audit Premium, Power BI Pro,
+  Teams Phone Standard) → Office 365 E5.
+- **Need Windows + Intune + Entra ID P1 bundled** → Microsoft 365 E3.
+- **Need full Defender Suite + Purview E5 + Entra ID P2** → Microsoft 365 E5,
+  or Office 365 E5 + EMS E5 (sometimes priced better in legacy EAs).
+
+> **EEA note.** EU / EEA customers buy the **"Office 365 E3 (no Teams) EEA"**
+> SKU + **Microsoft Teams Enterprise** as a separate per-user SKU. Same
+> features, split into two line items.

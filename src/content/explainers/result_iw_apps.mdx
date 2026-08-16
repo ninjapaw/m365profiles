@@ -1,0 +1,62 @@
+---
+title: "Microsoft 365 Apps for Enterprise — the apps-only SKU"
+resultId: "result_iw_apps"
+profile: "iw"
+summary: "When the user only needs installed Office (Word, Excel, PowerPoint, Outlook) on their device and their mail / chat / file-share comes from somewhere other than Microsoft."
+authored: "2026-05"
+aiAssisted: true
+---
+
+Microsoft 365 Apps for Enterprise is the **installed Office apps as a per-user
+SKU** — Word, Excel, PowerPoint, Outlook, OneNote, Access, Publisher on Windows
+(plus Word / Excel / PowerPoint / Outlook on Mac) on up to 5 PCs / Macs +
+5 tablets + 5 phones per user. It's roughly **$12 / user / month** in commercial
+pricing and is the cheapest legitimate way to license installed Office.
+
+You get:
+
+- The installed Office desktop apps on Windows and Mac (plus the mobile apps with
+  the same 10.9-inch screen rule as every Office SKU).
+- 1 TB of OneDrive for Business storage per user — this is the **only** Microsoft
+  cloud service bundled.
+- Standard Microsoft Update / Office Customization Tool deployment paths
+  (channel control, ODT, Configuration Manager / Intune deployment via Win32 app).
+
+You do **not** get:
+
+- An Exchange Online mailbox (no Outlook hosted mail). Mail must come from a
+  third-party service.
+- Microsoft Teams, SharePoint Online, Loop, Forms, or any other Microsoft cloud
+  collab service.
+- A Windows licence, Microsoft Intune, or Microsoft Entra ID P1 (no Conditional
+  Access, no group-based licensing, no SSPR by default).
+- Any Defender or Purview features — including Defender for Office Plan 1 (no
+  Safe Links / Safe Attachments because there's no Exchange Online to attach to).
+
+### When this is the right answer
+
+The classic fits are:
+
+- **Mixed-stack engineering shops** on Google Workspace where employees need
+  Excel + PowerPoint locally for Office-format compatibility with external
+  partners but their day-to-day mail / chat / docs all live in Gmail / Meet /
+  Drive.
+- **Migration scenarios** — the org is still on on-premises Exchange or moving
+  off IBM Notes / Zimbra / Skype for Business and hasn't moved to Microsoft cloud
+  yet, but users need Office locally today.
+- **Sub-tenants / acquisitions** where Office is deployed centrally but the
+  collab platform is run by the parent company under a different SKU /
+  tenant.
+
+### When to step up
+
+- **Need cloud mail + Teams + SharePoint** → step up to Office 365 E1 (web/mobile
+  only) or Office 365 E3 (installed apps included anyway).
+- **Need Windows + Intune + Entra ID P1 as part of the same SKU** → step up to
+  Microsoft 365 E3 (bundles all of those with installed Office).
+- **Need Defender for Office P2 / Purview E5 / Power BI Pro / Teams Phone** →
+  step up to Office 365 E5 (or M365 E5 if the M365 bundle fits).
+
+> **EEA note.** This SKU has no Teams to unbundle, so there's no separate
+> "No Teams" EEA variant. The same Microsoft 365 Apps for Enterprise SKU
+> sells worldwide.

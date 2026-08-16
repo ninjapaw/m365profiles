@@ -1,0 +1,50 @@
+---
+title: "Microsoft 365 Apps for Business"
+resultId: result_smb_apps
+profile: smb
+summary: "Apps-only Business-tier SKU — installed Office desktop apps + 1 TB OneDrive. No Exchange, Teams, or SharePoint cloud services. Best when the org uses Google Workspace or another non-Microsoft email/collab stack."
+authored: "2024"
+aiAssisted: true
+---
+
+## What this is
+
+**Microsoft 365 Apps for Business** is the apps-only SKU in the Microsoft 365 Business family. It includes the installed Office desktop applications and 1 TB of OneDrive for Business storage — and intentionally **excludes** every other Microsoft cloud service (no Exchange mailbox, no Microsoft Teams, no SharePoint Online, no Loop, no Bookings, no Clipchamp).
+
+It sits below Business Basic in price (the cheapest Basic-family SKU that includes any cloud collaboration) and below Business Standard in scope, and is targeted at small businesses that already get email and chat from a third-party platform — typically Google Workspace, on-premises Exchange, Slack, or a hosted IMAP/SMTP provider — but still need the installed Word / Excel / PowerPoint / Outlook desktop apps for documents and reporting.
+
+## When to pick it
+
+Pick **Microsoft 365 Apps for Business** when **all four** are true:
+
+1. The organization has **300 seats or fewer** (the hard Business-family cap — shared across Apps for Business + Basic + Standard + Premium combined).
+2. Users need **installed Office desktop apps** (Word, Excel, PowerPoint, Outlook, OneNote on Windows; Word, Excel, PowerPoint, Outlook on Mac) — Office for the web is not enough.
+3. **Mail and team collaboration come from somewhere else** (Google Workspace Gmail + Meet, on-premises Exchange, a non-Microsoft SaaS, or nothing at all) — the org does NOT need an Exchange Online mailbox, Microsoft Teams, or SharePoint Online.
+4. The org does **not** need Microsoft Defender for Business, Microsoft Intune device management, or Microsoft Entra ID P1 (Conditional Access + MFA enforcement + group-based licensing). If any of those are required, you need Business Premium instead — and Business Premium includes the installed Office apps too.
+
+If criterion 3 ever flips (the org starts using Microsoft Teams or moves email to Exchange Online), step up to Business Basic / Standard / Premium — there is no licensing concept of "Apps for Business + Teams add-on." Microsoft sells Teams Essentials as a standalone for orgs that want just Teams, but that's a different SKU stack.
+
+If criterion 1 ever flips (org grows past 300 seats), step laterally to **Microsoft 365 Apps for Enterprise** — same apps-only scope, no seat cap, sold as an Enterprise-tier SKU.
+
+## What it includes
+
+- **Installed Office desktop apps** — Word, Excel, PowerPoint, Outlook, OneNote on Windows. Word, Excel, PowerPoint, Outlook on Mac. Access and Publisher on Windows only.
+- Installation rights on up to **5 PCs/Macs + 5 tablets + 5 phones per user**.
+- **1 TB OneDrive for Business** per user (this is the ONE cloud service bundled).
+- Microsoft 365 Apps update channels (Monthly Enterprise, Semi-Annual Enterprise, Current).
+
+## What it does NOT include
+
+- **No Exchange Online mailbox.** Mail must come from another provider. (You can buy Exchange Online Plan 1 or Plan 2 as a standalone add-on, but at that point compare against Business Basic.)
+- **No Microsoft Teams.** No chat, no meetings, no calling. (Teams Essentials is a separate SKU.)
+- **No SharePoint Online sites or Microsoft Lists** (other than the document storage within OneDrive).
+- **No Microsoft Loop, Bookings, Clipchamp, Stream, Forms, or Power Automate / Power Apps seeded usage rights.**
+- **No security uplift.** No Defender for Business, no Intune, no Entra ID P1, no Conditional Access enforcement, no Information Protection. Users get the base Microsoft Entra ID Free tier that comes with every Microsoft 365 tenant.
+
+## Sources
+
+- [Microsoft 365 Apps for Business — product page](https://www.microsoft.com/microsoft-365/business/microsoft-365-apps-for-business)
+- [Compare Microsoft 365 Business plans](https://www.microsoft.com/microsoft-365/business/compare-all-plans)
+- [Office applications service description](https://learn.microsoft.com/office365/servicedescriptions/office-applications-service-description/office-applications-service-description)
+- [Microsoft 365 Business 300-seat limit](https://learn.microsoft.com/microsoft-365/commerce/subscriptions/upgrade-to-different-plan)
+- [M365 Maps — Apps for Business](https://m365maps.com/Microsoft%20365%20Apps%20for%20business.htm)

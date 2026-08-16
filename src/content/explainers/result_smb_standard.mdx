@@ -1,0 +1,43 @@
+---
+title: "Microsoft 365 Business Standard — installed Office without security bundling"
+resultId: "result_smb_standard"
+profile: "smb"
+summary: "Business Basic + installed desktop Office. No Intune, no Defender for Business, no Entra ID P1."
+authored: "2026-05"
+aiAssisted: true
+---
+
+Business Standard is **Business Basic plus the installed Office desktop
+apps**. That's the only meaningful uplift from Basic — everything else
+(mailbox size, Teams, SharePoint, OneDrive, the 300-seat cap) is the same.
+
+**What's added over Basic:**
+
+- Word, Excel, PowerPoint, Outlook installed on Windows / Mac.
+- Access and Publisher (Windows only).
+- Microsoft Loop, Bookings, Clipchamp — same as Basic.
+
+**What's still missing vs Business Premium:**
+
+- **Microsoft Intune** (device management).
+- **Microsoft Defender for Business** (endpoint EDR).
+- **Microsoft Entra ID P1** (Conditional Access, MFA enforcement, SSPR).
+- **Defender for Office 365 P1** (advanced anti-phishing on email).
+- **Azure Information Protection P1** (sensitivity labels).
+
+> **The 300-seat hard cap applies.** All Business SKUs share a single 300-seat
+> ceiling across the tenant. If you're approaching it, plan the cutover to
+> Enterprise E3 / E5 before you cross.
+
+**When Business Standard is the right answer:**
+
+- The tenant is small and security / device-management is genuinely out of
+  scope (handled separately, or not yet a requirement).
+- Users need installed Office desktop apps but nothing more.
+
+> **In practice, most SMBs that buy Standard end up needing Premium within
+> a year.** The moment you turn on Conditional Access, deploy endpoint
+> protection, or enrol devices in Intune, you're on the Premium feature set.
+> If that's even slightly likely in the next 12 months, Premium is the
+> better starting point — buying Standard and re-licensing later costs
+> more than buying Premium up front.

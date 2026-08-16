@@ -1,0 +1,35 @@
+---
+title: "Entra ID P2 (standalone) — license the few, not the many"
+resultId: "result_p2_standalone"
+profile: "admin"
+summary: "When to buy the P2 add-on for a small admin cohort rather than upgrading the whole tenant to E5."
+authored: "2025-11"
+aiAssisted: true
+---
+
+Entra ID P2 unlocks **Privileged Identity Management (PIM)**, **Identity
+Protection** (sign-in & user risk policies), and **access reviews**. These are
+must-haves for a modern Zero-Trust admin program — but they only need to be
+licensed for users who actually use them.
+
+**License Entra ID P2 standalone when:**
+
+- You have a handful of **privileged admins** (Global Admins, Privileged
+  Role Admins, Helpdesk Admins) who need PIM eligible assignments and
+  just-in-time activation.
+- Your **break-glass account program** needs PIM-managed assignments and
+  alerting.
+- You want to run **access reviews** for sensitive groups, but only for
+  those specific admin / privileged-access groups — not every employee.
+
+**Move to E5 (or the Entra Suite) when:**
+
+- You need P2 capabilities **tenant-wide** (every user goes through risk-based
+  CA, every department runs entitlement reviews).
+- You already need at least two of: Defender for Endpoint P2, Defender XDR
+  P2, Purview E5 Compliance.
+
+> **Compliance pattern:** Microsoft licensing terms allow per-user
+> entitlement assignment for P2 — you do **not** have to license the whole
+> tenant if only the admins use the feature. Document who is licensed (and
+> why) so an audit can trace it.

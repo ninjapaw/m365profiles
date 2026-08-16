@@ -1,0 +1,646 @@
+---
+import Base from "@layouts/Base.astro";
+import { pageTitle } from "@lib/site";
+import { withBase } from "@lib/paths";
+import {
+  TREE,
+  PROFILES,
+  OUTCOMES,
+  docsOf,
+  profileOutcomeChips,
+  type DocLink,
+  type Profile,
+  type TreeNode,
+} from "@lib/tree";
+
+// ---------------------------------------------------------------------------
+// /profiles/[slug] — per-profile detail page
+//
+// Generates one static page per Profile in the canonical PROFILES list
+// (derived from start_choice in src/data/tree.js). Each page tells the user
+// what the profile is, what licensing it leads to, every result the profile's
+// decision path can reach, the outcome buckets it lands on, the canonical
+// Microsoft sources behind the recommendations, and a "Start the assessment
+// for this profile" CTA that deep-links straight to the profile's entry node
+// via the ?entry=<nodeId> URL param (handled in src/client/assessment.ts).
+// ---------------------------------------------------------------------------
+
+export async function getStaticPaths() {
+  return PROFILES.map((profile) => ({
+    params: { slug: profile.key },
+    props: { profile },
+  }));
+}
+
+type Props = { profile: Profile };
+const { profile } = Astro.props as Props;
+
+const profilesHref = withBase("/profiles");
+const referenceHref = withBase("/reference");
+const assessmentStartHref = withBase(`/assessment?entry=${profile.entry}`);
+
+// Entry node — first thing the user sees when they start the assessment for
+// this profile. May be a question, a result (for the warning-toned profile),
+// or a chooser.
+const entryNode: TreeNode | undefined = TREE[profile.entry];
+const entryIsResult = !!entryNode?.result;
+
+// All reachable result nodes for this profile, with their full data.
+type ReachableResult = {
+  id: string;
+  node: TreeNode;
+  badge?: string;
+  badgeClass?: string;
+  title: string;
+  sub?: string;
+  license?: string;
+  decisionBasis?: string;
+  bullets?: string[];
+};
+const reachable: ReachableResult[] = profile.results.map((id) => {
+  const node = TREE[id] ?? ({} as TreeNode);
+  return {
+    id,
+    node,
+    badge: node.badge,
+    badgeClass: node.badgeClass,
+    title: node.title ?? node.badge ?? id,
+    sub: node.sub,
+    license: node.license,
+    decisionBasis: node.decisionBasis,
+    bullets: node.bullets,
+  };
+});
+
+// Outcome chips this profile can land on (sorted by reachable-result count).
+const chips = profileOutcomeChips(profile.key);
+
+// Canonical Microsoft sources — union of entry-node docs + every reachable
+// result's docs. De-duplicated by URL so the same Learn page doesn't appear
+// twice when multiple results cite it.
+const sourcesMap = new Map<string, DocLink>();
+for (const [label, href] of docsOf(entryNode)) {
+  if (!sourcesMap.has(href)) sourcesMap.set(href, [label, href]);
+}
+for (const r of reachable) {
+  for (const [label, href] of docsOf(r.node)) {
+    if (!sourcesMap.has(href)) sourcesMap.set(href, [label, href]);
+  }
+}
+const sources = [...sourcesMap.values()];
+
+// Quick-facts strip: total reachable results, outcome buckets covered.
+const totalResults = reachable.length;
+const totalOutcomes = chips.length;
+
+// Compact entry-question preview shown in the "What happens when you start"
+// callout. We trim very long question strings so the card stays tidy.
+const entryPreviewLabel = entryNode?.step?.label;
+const entryPreviewQuestion = entryNode?.question;
+const entryPreviewSub = entryIsResult ? entryNode?.sub : entryNode?.help;
+
+const isWarning = profile.tone === "warning";
+
+const title = pageTitle(profile.label);
+const description = profile.sublabel
+  ? `${profile.label} · ${profile.sublabel}`
+  : `Microsoft 365 licensing profile — ${profile.label}.`;
+---
+
+<Base title={title} description={description}>
+  <section class="section">
+    <div class="container">
+      <nav class="profile-detail__crumbs" aria-label="Breadcrumb">
+        <a href={profilesHref}>← All profiles</a>
+      </nav>
+
+      <header class={`profile-detail__hero ${isWarning ? "profile-detail__hero--warn" : ""}`}>
+        <div class="profile-detail__hero-icon" aria-hidden="true">{profile.icon ?? "•"}</div>
+        <div class="profile-detail__hero-body">
+          <p class="eyebrow">Identity profile</p>
+          <h1>{profile.label}</h1>
+          {profile.sublabel && <p class="lede">{profile.sublabel}</p>}
+          <div class="profile-detail__hero-cta">
+            <a class="btn btn-primary" href={assessmentStartHref}>
+              {
+                isWarning
+                  ? "Open this profile in the assessment →"
+                  : "Start the assessment for this profile →"
+              }
+            </a>
+            <a class="btn btn-secondary" href={profilesHref}>Compare with other profiles</a>
+          </div>
+        </div>
+      </header>
+
+      <!-- Quick facts strip -->
+      <ul class="profile-detail__facts" aria-label="Quick facts">
+        <li>
+          <span class="profile-detail__fact-label">Entry node</span>
+          <code class="profile-detail__fact-value">{profile.entry}</code>
+        </li>
+        <li>
+          <span class="profile-detail__fact-label">Reachable results</span>
+          <span class="profile-detail__fact-value">{totalResults}</span>
+        </li>
+        <li>
+          <span class="profile-detail__fact-label">Premium buckets covered</span>
+          <span class="profile-detail__fact-value">{totalOutcomes} / {OUTCOMES.length}</span>
+        </li>
+        <li>
+          <span class="profile-detail__fact-label">Profile tone</span>
+          <span
+            class={`profile-detail__fact-value profile-detail__fact-value--${profile.tone ?? "primary"}`}
+          >
+            {profile.tone ?? "primary"}
+          </span>
+        </li>
+      </ul>
+
+      {
+        isWarning && (
+          <aside class="profile-detail__warn-callout" role="note">
+            <strong>Microsoft does not recommend this pattern.</strong> This profile is an
+            anti-pattern — a single identity holding both day-to-day mailbox / Teams / Office
+            consumption AND privileged role assignments. Starting the assessment here jumps straight
+            to a guidance page explaining why and pointing you toward the dedicated privileged-admin
+            profile instead.
+          </aside>
+        )
+      }
+
+      <!-- What this profile is -->
+      <section class="profile-detail__block" aria-labelledby="about-heading">
+        <h2 id="about-heading">What this profile is</h2>
+        <p>
+          {
+            profile.sublabel ??
+              `Microsoft 365 licensing journey for the ${profile.label} identity profile.`
+          }
+        </p>
+        {
+          entryPreviewQuestion && (
+            <div class="profile-detail__entry-preview">
+              <p class="profile-detail__entry-preview-eyebrow">
+                First question{entryPreviewLabel && ` · ${entryPreviewLabel}`}
+              </p>
+              <p class="profile-detail__entry-preview-q">{entryPreviewQuestion}</p>
+              {entryPreviewSub && (
+                <p class="profile-detail__entry-preview-help">{entryPreviewSub}</p>
+              )}
+            </div>
+          )
+        }
+        {
+          entryIsResult && entryPreviewSub && (
+            <div class="profile-detail__entry-preview">
+              <p class="profile-detail__entry-preview-eyebrow">What you'll see</p>
+              <p class="profile-detail__entry-preview-help">{entryPreviewSub}</p>
+            </div>
+          )
+        }
+      </section>
+
+      <!-- Outcome chips -->
+      {
+        chips.length > 0 && (
+          <section class="profile-detail__block" aria-labelledby="outcomes-heading">
+            <h2 id="outcomes-heading">Premium capabilities this profile can land on</h2>
+            <p class="profile-detail__block-lede">
+              Each chip is a premium Microsoft 365 capability bucket the{" "}
+              {profile.label.toLowerCase()} decision path can recommend. Click through to the
+              matching reference entry.
+            </p>
+            <ul class="profile-detail__chips" aria-label="Outcome chips">
+              {chips.map((c) => (
+                <li>
+                  <a class="chip" href={`${referenceHref}#${c.topResultId}`} title={c.outcome.desc}>
+                    {c.outcome.label}
+                    {c.count > 1 && <span class="chip__count"> ×{c.count}</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <!-- Recommendations -->
+      <section class="profile-detail__block" aria-labelledby="recs-heading">
+        <h2 id="recs-heading">
+          {
+            totalResults === 0
+              ? "Recommendations"
+              : `Recommendations on this path (${totalResults})`
+          }
+        </h2>
+        {
+          totalResults === 0 ? (
+            <p>
+              This profile leads to guidance rather than a SKU recommendation — start the assessment
+              to see the full explanation.
+            </p>
+          ) : (
+            <p class="profile-detail__block-lede">
+              Every result your decision path can reach is listed below. Click any badge to open the
+              full reference entry with all bullets and Microsoft source citations.
+            </p>
+          )
+        }
+        {
+          totalResults > 0 && (
+            <ol class="profile-detail__recs">
+              {reachable.map((r) => (
+                <li class="profile-detail__rec">
+                  {r.badge && (
+                    <a
+                      class={`profile-detail__rec-badge ${r.badgeClass ?? "badge-premium"}`}
+                      href={`${referenceHref}#${r.id}`}
+                    >
+                      {r.badge}
+                    </a>
+                  )}
+                  <h3 class="profile-detail__rec-title">
+                    <a href={`${referenceHref}#${r.id}`}>{r.title}</a>
+                  </h3>
+                  {r.sub && <p class="profile-detail__rec-sub">{r.sub}</p>}
+                  {r.license && (
+                    <p class="profile-detail__rec-license">
+                      <strong>License:</strong> {r.license}
+                    </p>
+                  )}
+                  {r.decisionBasis && (
+                    <p class="profile-detail__rec-basis">
+                      <strong>Why this lands here:</strong> {r.decisionBasis}
+                    </p>
+                  )}
+                  {r.bullets && r.bullets.length > 0 && (
+                    <ul class="profile-detail__rec-bullets">
+                      {r.bullets.slice(0, 4).map((b) => (
+                        <li>{b}</li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ol>
+          )
+        }
+      </section>
+
+      <!-- Sources -->
+      {
+        sources.length > 0 && (
+          <section class="profile-detail__block" aria-labelledby="sources-heading">
+            <h2 id="sources-heading">Microsoft sources behind this profile</h2>
+            <p class="profile-detail__block-lede">
+              Combined citation list from the entry question and every reachable result, deduped by
+              URL ({sources.length} link{sources.length === 1 ? "" : "s"}).
+            </p>
+            <ul class="profile-detail__sources">
+              {sources.map(([label, href]) => (
+                <li>
+                  <a href={href} target="_blank" rel="noopener noreferrer">
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <!-- Sticky-style end CTA -->
+      <div class="profile-detail__end-cta">
+        <a class="btn btn-primary" href={assessmentStartHref}>
+          {
+            isWarning
+              ? "Open this profile in the assessment →"
+              : `Start the ${profile.label} assessment →`
+          }
+        </a>
+        <a class="btn btn-ghost" href={profilesHref}>← Back to all profiles</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .profile-detail__crumbs {
+    margin: 0 0 1.25rem;
+    font-size: var(--fs-sm);
+  }
+  .profile-detail__crumbs a {
+    color: var(--ms-blue);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .profile-detail__crumbs a:hover {
+    text-decoration: underline;
+  }
+
+  .profile-detail__hero {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    padding: 1.75rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 1.5rem;
+  }
+  .profile-detail__hero--warn {
+    border-left: 4px solid var(--color-warning);
+  }
+  .profile-detail__hero-icon {
+    flex: 0 0 auto;
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-sm);
+    background: var(--ms-blue);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.85rem;
+  }
+  .profile-detail__hero--warn .profile-detail__hero-icon {
+    background: var(--color-warning);
+  }
+  .profile-detail__hero-body {
+    min-width: 0;
+    flex: 1;
+  }
+  .profile-detail__hero-body .eyebrow {
+    text-transform: uppercase;
+    color: var(--ms-blue);
+    font-weight: 700;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.1em;
+    margin: 0 0 0.35rem;
+  }
+  .profile-detail__hero-body h1 {
+    margin: 0 0 0.5rem;
+  }
+  .profile-detail__hero-body .lede {
+    color: var(--color-text-soft);
+    margin: 0 0 1rem;
+    font-size: var(--fs-md);
+    line-height: 1.55;
+  }
+  .profile-detail__hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .profile-detail__facts {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.75rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+  }
+  .profile-detail__facts li {
+    padding: 0.85rem 1rem;
+    background: var(--color-bg-tint);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+  .profile-detail__fact-label {
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-soft);
+    font-weight: 600;
+  }
+  .profile-detail__fact-value {
+    font-size: var(--fs-md);
+    font-weight: 700;
+    color: var(--color-text);
+    word-break: break-word;
+  }
+  code.profile-detail__fact-value {
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: 0.85rem;
+    background: transparent;
+  }
+  .profile-detail__fact-value--warning {
+    color: var(--color-warning);
+  }
+
+  .profile-detail__warn-callout {
+    padding: 1rem 1.1rem;
+    border-left: 4px solid var(--color-warning);
+    background: #fff5f5;
+    color: var(--color-text);
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.75rem;
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+  }
+  :root[data-theme="dark"] .profile-detail__warn-callout {
+    background: #2a1818;
+  }
+
+  .profile-detail__block {
+    margin: 0 0 2rem;
+  }
+  .profile-detail__block h2 {
+    margin: 0 0 0.5rem;
+  }
+  .profile-detail__block-lede {
+    margin: 0 0 1rem;
+    color: var(--color-text-soft);
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+  }
+  .profile-detail__block p {
+    margin: 0 0 1rem;
+    line-height: 1.55;
+  }
+
+  .profile-detail__entry-preview {
+    padding: 1rem 1.1rem;
+    background: var(--color-bg-tint);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    margin: 0.5rem 0 0;
+  }
+  .profile-detail__entry-preview-eyebrow {
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-soft);
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+  }
+  .profile-detail__entry-preview-q {
+    margin: 0 0 0.5rem;
+    color: var(--color-text);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .profile-detail__entry-preview-help {
+    margin: 0;
+    color: var(--color-text-soft);
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+  }
+
+  .profile-detail__chips {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--radius-pill);
+    background: var(--ms-blue-lighter);
+    color: var(--ms-blue-darker);
+    border: 1px solid #b8daff;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    text-decoration: none;
+    line-height: 1.4;
+  }
+  .chip:hover {
+    background: var(--ms-blue);
+    color: #fff;
+    border-color: var(--ms-blue);
+    text-decoration: none;
+  }
+  .chip__count {
+    opacity: 0.75;
+    font-weight: 500;
+  }
+  :root[data-theme="dark"] .chip {
+    background: #173a63;
+    color: #8ecbff;
+    border-color: #2a558a;
+  }
+  :root[data-theme="dark"] .chip:hover {
+    background: var(--ms-blue);
+    color: #fff;
+    border-color: var(--ms-blue);
+  }
+
+  .profile-detail__recs {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: rec;
+  }
+  .profile-detail__rec {
+    counter-increment: rec;
+    padding: 1.1rem 1.2rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-card);
+    margin: 0 0 1rem;
+  }
+  .profile-detail__rec-badge {
+    display: inline-block;
+    padding: 0.2em 0.65em;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    margin-bottom: 0.55rem;
+  }
+  .profile-detail__rec-badge:hover {
+    filter: brightness(1.05);
+    text-decoration: none;
+  }
+  .profile-detail__rec-title {
+    margin: 0 0 0.4rem;
+    font-size: var(--fs-md);
+  }
+  .profile-detail__rec-title a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .profile-detail__rec-title a:hover {
+    color: var(--ms-blue);
+    text-decoration: underline;
+  }
+  .profile-detail__rec-sub,
+  .profile-detail__rec-license,
+  .profile-detail__rec-basis {
+    margin: 0 0 0.5rem;
+    color: var(--color-text-soft);
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+  }
+  .profile-detail__rec-license strong,
+  .profile-detail__rec-basis strong {
+    color: var(--color-text);
+  }
+  .profile-detail__rec-bullets {
+    margin: 0.4rem 0 0;
+    padding-left: 1.25rem;
+    color: var(--color-text-soft);
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+  }
+  .profile-detail__rec-bullets li {
+    margin-bottom: 0.25rem;
+  }
+
+  .profile-detail__sources {
+    list-style: disc;
+    padding-left: 1.25rem;
+    margin: 0;
+    color: var(--color-text);
+    font-size: var(--fs-sm);
+    line-height: 1.7;
+  }
+  .profile-detail__sources a {
+    color: var(--ms-blue);
+    text-decoration: none;
+  }
+  .profile-detail__sources a:hover {
+    text-decoration: underline;
+  }
+
+  .profile-detail__end-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    background: var(--color-bg-tint);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    margin-top: 2.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .profile-detail__hero {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .profile-detail__hero-icon {
+      width: 56px;
+      height: 56px;
+      font-size: 1.5rem;
+    }
+  }
+</style>

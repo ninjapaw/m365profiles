@@ -1,0 +1,60 @@
+---
+title: "Entra ID P2 — already included in the user's existing license"
+resultId: "result_p2_already_included"
+profile: "admin"
+summary: "No additional purchase — but only if every in-scope user is actually assigned a P2-inclusive SKU on their account."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because you confirmed that **every user in scope of a P2
+trigger** (PIM eligible / approver / reviewer, or in scope of Identity
+Protection / risk-based CA) is already assigned a license that includes
+Entra ID P2 — **M365 E5, M365 E7, EMS E5, Defender Suite, Entra Suite,
+or Entra ID Governance**.
+
+If that's true, **no additional purchase is needed**. But there's a
+subtle gotcha that fails audits:
+
+> **Assignment vs entitlement — the distinction that matters.** The
+> tenant owning a pool of E5 SKUs is **not** the same as a specific user
+> being assigned one. Auditors verify the license tick-box on each
+> individual user account, not the tenant-wide pool. **Before you rely
+> on this answer, open the Microsoft 365 admin center → Users → the
+> user → Licenses & apps**, and confirm a P2-inclusive SKU is actually
+> ticked on that user.
+
+**Three failure modes that look fine on paper but break at audit:**
+
+1. **License pool, no assignment.** Tenant has 500 unused E5 SKUs. PIM
+   eligible admin is on E3. Auditor flags: admin is non-compliant for PIM
+   licensing.
+2. **Assignment removed mid-flight.** Admin was on E5 when PIM
+   eligibility was created. Six months later, E5 was reassigned to
+   someone else and admin was downgraded to E3. The PIM eligibility is
+   still configured. **The moment the SKU was removed, the configuration
+   became non-compliant** — Microsoft's licensing model requires the SKU
+   to remain assigned for as long as the user is in scope.
+3. **Risk policy scope drift.** Identity Protection risk-based CA was
+   originally scoped to a small admin group on E5. Someone later changed
+   the policy scope to "All users" without checking SKUs. **Every user
+   evaluated by the policy must hold a P2-inclusive SKU at the moment the
+   risk is evaluated** — not just at policy creation time.
+
+**Identity Governance ≠ P2.** Some P2-inclusive SKUs do **not** include
+Entra ID Governance:
+
+- ✅ Microsoft **Entra Suite**, M365 **E7**, standalone **Entra ID
+  Governance** → include Governance.
+- ❌ M365 **E5**, **EMS E5**, **Defender Suite** → include P2 but **do
+  not** include Governance.
+
+If you also need Entitlement Management access packages, Lifecycle
+Workflows, or ML-driven access-review recommendations, the user needs an
+SKU from the first list — not just P2.
+
+**If even one in-scope user is on a non-P2 SKU** (M365 E3, Business
+Premium, an F-series plan, or Office 365 E5 — yes, *Office 365* E5 does
+not include Entra ID P2), go back and answer **No**: that user needs
+standalone Entra ID P2. Discovering this at audit costs more than the
+standalone license ever would.

@@ -1,0 +1,173 @@
+---
+import { siteLinks } from "@lib/links";
+import { BRAND } from "@lib/brand";
+import { STORAGE_KEYS } from "@lib/site";
+import { baseUrl } from "@lib/paths";
+
+const base = baseUrl();
+const pathname = Astro.url.pathname.replace(/\/$/, "") || base;
+const links = siteLinks(base);
+const isActive = (href: string) => {
+  const target = href.replace(/\/$/, "") || base;
+  return target === pathname;
+};
+---
+
+<header class="navbar" role="banner">
+  <div class="navbar__inner container">
+    <a class="navbar__brand" href={`${base}/`} aria-label={`${BRAND.name} home`}>
+      <span class="navbar__logo" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+      </span>
+      <span class="navbar__title">{BRAND.name}</span>
+    </a>
+    <nav class="navbar__nav" aria-label="Primary">
+      {
+        links.map((l) => (
+          <a
+            href={l.href}
+            class:list={["navbar__link", isActive(l.href) && "navbar__link--active"]}
+            aria-current={isActive(l.href) ? "page" : undefined}
+          >
+            {l.label}
+          </a>
+        ))
+      }
+    </nav>
+    <button
+      type="button"
+      id="theme-toggle"
+      class="navbar__theme"
+      aria-label="Toggle color theme"
+      title="Toggle theme"
+    >
+      <span aria-hidden="true">◐</span>
+    </button>
+  </div>
+</header>
+
+<style>
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+  .navbar__inner {
+    height: var(--navbar-h);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .navbar__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-text);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .navbar__brand:hover {
+    text-decoration: none;
+  }
+  .navbar__logo {
+    display: inline-grid;
+    grid-template-columns: 10px 10px;
+    grid-template-rows: 10px 10px;
+    gap: 2px;
+  }
+  .navbar__logo span:nth-child(1) {
+    background: var(--ms-square-1);
+  }
+  .navbar__logo span:nth-child(2) {
+    background: var(--ms-square-2);
+  }
+  .navbar__logo span:nth-child(3) {
+    background: var(--ms-square-3);
+  }
+  .navbar__logo span:nth-child(4) {
+    background: var(--ms-square-4);
+  }
+  .navbar__title {
+    font-size: var(--fs-md);
+    letter-spacing: -0.005em;
+  }
+  .navbar__nav {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+  .navbar__link {
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--radius);
+    color: var(--color-text-soft);
+    font-weight: 500;
+    font-size: var(--fs-sm);
+  }
+  .navbar__link:hover {
+    background: var(--color-bg-tint);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .navbar__link--active {
+    color: var(--ms-blue);
+    background: var(--ms-blue-lighter);
+  }
+  :root[data-theme="dark"] .navbar__link--active {
+    background: #173a63;
+    color: #8ecbff;
+  }
+  .navbar__theme {
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+  .navbar__theme:hover {
+    background: var(--color-bg-tint);
+    border-color: var(--ms-blue);
+  }
+
+  @media (max-width: 720px) {
+    .navbar__inner {
+      gap: 12px;
+    }
+    .navbar__title {
+      display: none;
+    }
+    .navbar__nav {
+      gap: 0;
+    }
+    .navbar__link {
+      padding: 0.4rem 0.5rem;
+      font-size: var(--fs-xs);
+    }
+  }
+</style>
+
+<script is:inline define:vars={{ themeKey: STORAGE_KEYS.theme }}>
+  const btn = document.getElementById("theme-toggle");
+  btn?.addEventListener("click", () => {
+    let cur = document.documentElement.getAttribute("data-theme");
+    if (cur !== "dark" && cur !== "light") {
+      cur = window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    const next = cur === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try {
+      localStorage.setItem(themeKey, next);
+    } catch (_) {
+      /* ignore */
+    }
+  });
+</script>

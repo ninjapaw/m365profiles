@@ -1,0 +1,57 @@
+---
+title: "Break-glass account — no license required"
+resultId: "result_break_glass"
+profile: "admin"
+summary: "Emergency-access accounts excluded from CA / PIM / Identity Protection can run on Entra ID Free."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because the account is a **break-glass emergency-access
+account** that is *deliberately excluded* from Conditional Access,
+Privileged Identity Management, and Identity Protection. Microsoft's
+emergency-access guidance recommends this exclusion specifically so the
+account can sign in when other identity controls fail (CA policy
+misconfiguration, Identity Protection false-positive, MFA service outage).
+
+**Because the account is not in scope of those premium policies, it does
+not trigger the premium-tier licensing requirement those policies
+normally create.** **Entra ID Free** (included with the tenant) is
+sufficient.
+
+**Microsoft's recommended break-glass posture:**
+
+- **At least two break-glass Global Administrator accounts** — one is a
+  single point of failure.
+- **Stored offline** — credentials in a sealed envelope or hardware
+  vault, not in your normal password manager.
+- **FIDO2 hardware security keys** as the primary authentication method
+  (not phone-based MFA, which depends on cellular / push services that
+  could be unavailable during an incident).
+- **No mailbox, no daily-use workload** — these accounts exist to recover
+  the tenant, not to do anything else.
+
+> **Compensating controls are mandatory, not optional.** Because the
+> account is excluded from CA + PIM + Identity Protection, the *only*
+> protection comes from:
+>
+> - Strong credential hygiene (FIDO2, long randomly-generated password).
+> - **Sign-in alerting** — every sign-in to a break-glass account should
+>   trigger an immediate alert in Azure Monitor / Sentinel / your SIEM,
+>   reviewed by a human within hours.
+> - **Periodic credential rotation and access test** — verify the
+>   credentials still work *before* you need them.
+>
+> Microsoft documents these compensating controls explicitly. If you
+> skip them, the cost-saving rationale (no P2 license) becomes a
+> security gap instead.
+
+**If you ever add these accounts back into PIM:**
+
+The exclusion is the entire reason no license is required. The moment a
+break-glass account is added to PIM (eligible for any role, or as an
+approver / reviewer), **Entra ID P2 becomes required** for that account,
+and you've also defeated the point of break-glass — it can no longer be
+relied on when PIM itself is the thing that's failing.
+
+Keep break-glass accounts permanently outside PIM.

@@ -1,0 +1,52 @@
+---
+title: "Intune Advanced Endpoint Analytics — standalone"
+resultId: "result_intune_aea"
+profile: "admin"
+summary: "Anomaly detection, per-device timeline, proactive remediation scripts on top of base Endpoint Analytics."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because the user / fleet needs **Intune Advanced
+Endpoint Analytics (AEA)** — anomaly detection, per-device timeline view,
+and proactive remediation scripts — and no other Intune premium feature
+is in scope.
+
+**What's already free in base Intune:**
+
+- Standard Endpoint Analytics reports: startup performance, application
+  reliability, battery health, Windows update compliance.
+- Aggregate fleet-level views and trending.
+
+**What AEA adds on top:**
+
+- **Anomaly detection** on the standard metrics — surfaces "something
+  broke this week" before users start opening tickets.
+- **Per-device timeline view** — drill into a single device's reliability
+  / boot / app / battery events to support help-desk triage.
+- **Proactive remediation scripts** — PowerShell detection + remediation
+  scripts that run on a schedule, automatically fix common issues
+  (clear stuck print queues, reset corrupted credentials, restart hung
+  services), and report outcomes back to Intune.
+
+**Why this matters operationally:**
+
+- Reduces ticket volume for repeat issues that scripted remediation can
+  fix automatically.
+- Shifts help-desk triage from "let me reproduce" to "I can see exactly
+  what happened on this device at this time."
+- Useful for L1 support standardization — known issues get scripted away;
+  L1 only escalates novel problems.
+
+**The "one feature only" math:**
+
+The Intune Suite bundles all six premium features. If AEA is the only
+one this user needs, paying for the bundle is wasteful. AEA standalone
+covers exactly this scenario.
+
+> **Re-evaluate the moment a second Intune premium feature comes into
+> scope** for the same user — at two premium features, the Intune Suite
+> usually wins.
+
+**Not bundled:** Entra ID P2. License separately if admins also operate
+PIM / Identity Protection.

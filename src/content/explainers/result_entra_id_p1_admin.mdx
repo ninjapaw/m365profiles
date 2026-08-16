@@ -1,0 +1,78 @@
+---
+title: "Microsoft Entra ID P1 — admin in scope of a P1-audience feature"
+resultId: "result_entra_id_p1_admin"
+profile: "admin"
+summary: "The most-missed admin licensing trigger: Conditional Access targeting the admin's own account requires Entra ID P1, even if the admin only operates portals."
+authored: "2026-05"
+aiAssisted: true
+---
+
+This recommendation lands when the privileged admin's **own account** is the
+**audience** of at least one Microsoft Entra ID P1 feature — not when they merely
+configure those features for other users.
+
+## What triggers P1 on the admin's own account
+
+- **Conditional Access targeting the admin** — the most common trigger. Microsoft's
+  [Conditional Access licensing FAQ](https://learn.microsoft.com/entra/identity/conditional-access/overview#license-requirements)
+  is explicit: "Conditional Access requires Microsoft Entra ID P1 licenses for every
+  user in scope of a Conditional Access policy." If your tenant has a policy like
+  "Require phishing-resistant MFA for all directory roles" and the admin holds any
+  directory role, they're in scope — P1 required.
+- **SSPR with on-prem writeback** — cloud-only SSPR is free, but writing password
+  changes back to on-prem AD via Entra Connect requires P1 per user with writeback
+  enabled.
+- **Application Proxy as a connecting user** — publishing an on-prem app via
+  Application Proxy is free for the publisher, but every user who *connects*
+  through App Proxy (including admins reaching legacy admin consoles) needs P1.
+- **Cloud App Discovery on the admin's device** — Defender for Cloud Apps shadow-IT
+  discovery attributed to the admin's device requires P1.
+
+## What is **NOT** a trigger (stays free)
+
+- **Configuring** CA policies under the Conditional Access Administrator role
+- **Configuring** Authentication Strengths, Authentication Methods policies, SSPR
+  settings, App Proxy connectors, Cloud Discovery data collectors
+- **Security Defaults** (tenant-wide, mutually exclusive with CA, free)
+- **Basic per-user MFA** via Microsoft Authenticator / FIDO2 keys
+- **Cloud-only SSPR** (no on-prem writeback)
+- **M365 admin center** and **Power Platform admin center** operation
+- **Entra Connect / Cloud Sync** installation and configuration
+- **B2B guest invitations** (first 50,000 MAU free)
+
+## How to satisfy the P1 requirement
+
+P1 is bundled in every common enterprise SKU — if any of these are already on the
+admin's account, you're covered:
+
+- **Microsoft 365 E3 / E5 / Business Premium / A3 / A5 / G3 / G5**
+- **Microsoft Enterprise Mobility + Security (EMS) E3 / E5**
+- **Microsoft Entra Suite** (also includes P2 + Governance + GSA + Verified ID)
+- **Microsoft 365 E7** (Frontier Suite — bundles everything)
+
+If the admin's account currently has no license at all, the cheapest path is
+**Microsoft Entra ID P1 standalone** (~$6/user/month). EMS E3 (~$10.60/user/month)
+is the next step up and adds Intune + the rest of EMS.
+
+## The break-glass exception
+
+Microsoft's
+[emergency access accounts guidance](https://learn.microsoft.com/entra/identity/role-based-access-control/security-emergency-access)
+recommends **excluding** at least two break-glass accounts from every CA policy.
+Those accounts stay on Entra ID Free because they're not in any policy's
+audience scope. This is the only legitimate pattern for keeping a privileged
+admin on Entra ID Free while still enforcing CA across the rest of the tenant.
+
+## Don't over-license
+
+The decision tree only lands here if you said **Yes** to the P1-audience
+question. If you said No (admin is excluded from CA, doesn't use SSPR writeback,
+doesn't connect via App Proxy, no Cloud Discovery on their device), the tree
+correctly routes to `result_no_license_admin` and the admin stays on Entra ID
+Free.
+
+See the
+[admin capability map (info_admin_capability_map)](/reference/#info_admin_capability_map)
+for the full free-vs-P1-vs-P2 breakdown of every admin-relevant capability,
+cross-referenced against Microsoft Learn and
+[m365maps.com](https://m365maps.com/Microsoft%20Entra%20ID%20P1.htm).

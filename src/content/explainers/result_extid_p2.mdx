@@ -1,0 +1,52 @@
+---
+title: "Entra External ID — Premium P2 MAU pricing"
+resultId: "result_extid_p2"
+profile: "extid"
+summary: "Premium features (risk-based CA, Identity Protection, PIM for guests) billed per active MAU in scope."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because you need **premium identity features evaluated
+against external users** — risk-based Conditional Access, Identity
+Protection signals, or PIM workflows scoped to guests. The free MAU tier
+doesn't cover these; External ID P2 MAU does.
+
+**How premium MAU pricing works:**
+
+- Billed **per Monthly Active User in scope of premium policy**, not flat
+  per tenant.
+- A guest only counts as a premium MAU in months where a premium feature
+  is evaluated against their sign-in (e.g. risk-based CA matched them).
+- The free 50,000 MAU tier still applies to the **underlying B2B
+  collaboration** — premium pricing is purely the uplift for the premium
+  feature scope.
+
+**P1 vs P2 — pick what you actually need:**
+
+- **External ID P1** — basic premium identity (risk-based CA without
+  Identity Protection's premium risk detections, basic protection
+  features). Cheaper.
+- **External ID P2** — adds Identity Protection's premium risk detections
+  (leaked credentials, anonymous IP, atypical travel, etc.) and PIM
+  workflows for guest identities.
+
+> **You only pay P2 rates for guests actually in scope of a P2 policy.**
+> If only 200 of your 10,000 guests are evaluated by a risk-based CA
+> policy in a given month, you pay P2 MAU for 200 — not 10,000.
+> Conditional Access scoping discipline directly controls cost.
+
+**When the simpler answer wins:**
+
+- If you only need *basic* B2B collaboration, the free MAU tier is enough
+  — don't upgrade to P2.
+- If guests need verifiable credentials (employment / partner attestation),
+  layer **Verified ID** on top (separate per-credential billing meter).
+- If the scenario is consumer sign-up / sign-in, use **External ID for
+  customers (CIAM)** instead — separate product line.
+
+**Bundling note:** if your tenant already licenses **Microsoft Entra Suite**
+per internal user (Internet Access + Private Access + Verified ID +
+Governance + ID Protection), that doesn't replace External ID MAU for
+guests — Entra Suite licenses internal users, External ID MAU licenses
+external ones.

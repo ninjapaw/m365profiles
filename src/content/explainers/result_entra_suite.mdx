@@ -1,0 +1,46 @@
+---
+title: "Microsoft Entra Suite — identity beyond P2"
+resultId: "result_entra_suite"
+profile: "admin"
+summary: "When Entra ID P2 stops being enough and the full Entra Suite (P2 + ID Governance + Internet Access + Private Access + Verified ID) earns its keep."
+authored: "2025-11"
+aiAssisted: true
+---
+
+The Entra Suite is Entra ID P2 **plus** four products that historically had
+to be licensed and stitched together separately:
+
+- **Entra ID Governance** — entitlement management, access reviews at scale,
+  lifecycle workflows.
+- **Entra Internet Access** — SSE/SWG for internet egress (the "Microsoft SSE"
+  story).
+- **Entra Private Access** — ZTNA replacement for legacy VPN.
+- **Verified ID** — issuer + verifier for verifiable credentials.
+
+**Buy the Suite when** you're heading toward Zero Trust *and* genuinely
+adopting **at least three** of those pillars — typically:
+
+- Replacing a VPN with **Private Access**.
+- Replacing or fronting an SWG with **Internet Access**.
+- Running formal **access reviews and lifecycle workflows** for joiners /
+  movers / leavers.
+
+**Skip the Suite when:**
+
+- You only need Entra ID P2 PIM/Identity-Protection — license P2 directly.
+- You're not ready to retire the VPN or third-party SWG — Internet Access /
+  Private Access become shelfware quickly.
+- You don't have a verifiable-credential issuance use case for Verified ID.
+
+> **Stacking note:** The Entra Suite includes P2. You shouldn't double-pay
+> if a user already has E5 (which bundles P2) — license the Suite
+> standalone-style and the P2 entitlement piggybacks.
+
+> **Microsoft's posture (Secure Future Initiative):** Entra Suite controls
+> sit squarely in Microsoft's [Secure Future Initiative](https://www.microsoft.com/en-us/trust-center/security/secure-future-initiative)
+> “Protect Identities and Secrets” pillar. Per Satya Nadella's [May 2024 SFI memo](https://blogs.microsoft.com/blog/2024/05/03/prioritizing-security-above-all-else/),
+> “security protections are enabled and enforced by default, require no extra
+> effort, and are not optional.” [Microsoft Product Terms](https://www.microsoft.com/licensing/terms/)
+> still require a per-user Entra Suite (or Entra ID P2 + add-on) licence for
+> every user covered by PIM, Identity Protection, Internet Access, or Private
+> Access policies.

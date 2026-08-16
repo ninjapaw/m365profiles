@@ -1,0 +1,54 @@
+---
+title: "Entra External ID — Free MAU tier (basic B2B collaboration)"
+resultId: "result_extid_free"
+profile: "extid"
+summary: "First 50,000 MAU per tenant are free. No per-seat M365 license needed for guests."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because you need **basic B2B collaboration** — invite
+guests from other Entra tenants, share Teams channels, give guests access
+to SharePoint sites — and you **don't** need premium identity features
+(risk-based Conditional Access, Identity Protection, PIM for guests,
+Verified ID).
+
+For that, **the free MAU tier is enough for most tenants**.
+
+**How External ID is billed:**
+
+- Pricing is per **Monthly Active User (MAU)** at the tenant level — not
+  per seat.
+- The **first 50,000 MAU per tenant per month are free**.
+- An MAU is a unique external user who authenticates against your tenant
+  in a given calendar month. A user who never signs in that month does not
+  count.
+
+**What's covered by the free tier:**
+
+- **B2B Collaboration** — invite external users from any Entra tenant (or
+  email one-time-passcode flows) and grant them access to apps, Teams
+  channels, SharePoint sites, etc.
+- **B2B Direct Connect** — Teams shared channels with partner tenants
+  without provisioning a guest object.
+- Basic Conditional Access policies against external sign-ins (the CA
+  policy capability is licensed via the inviting tenant's identity SKU,
+  not via External ID).
+
+> **Guests don't need their own M365 license to consume your content.**
+> The 2024 update to the Microsoft Product Terms "External Users"
+> definition confirms this: guest users invited via B2B can read / edit
+> content in Teams, SharePoint, etc. using the inviting tenant's licensed
+> resources, within the documented limits. No separate per-seat M365
+> assignment is required for the guest.
+
+**Step up to External ID P1 / P2** when you need risk-based Conditional
+Access, Identity Protection signals, or PIM workflows scoped to external
+users.
+
+**Step up to Verified ID** when you need decentralized verifiable
+credentials (employment / partner attestation).
+
+**Switch to External ID for customers (CIAM)** when the scenario is
+end-customer sign-up / sign-in for a consumer-facing app — that's a
+separate product line, not B2B.

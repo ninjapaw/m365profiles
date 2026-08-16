@@ -1,0 +1,48 @@
+---
+title: "Microsoft Entra Verified ID — per credential issued"
+resultId: "result_extid_verified"
+profile: "extid"
+summary: "Decentralized W3C verifiable credentials. Priced per credential issued, separate from MAU billing."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because you need to **issue verifiable credentials** —
+W3C-standard cryptographically-signed attestations that subjects hold in
+their own wallet and present to verifiers. Common scenarios: employment
+verification, partner attestation, education credentials, license
+verification.
+
+**How Verified ID is billed:**
+
+- Per **verifiable credential issued** — a separate billing meter from
+  External ID MAU.
+- Issuance is the chargeable event; verification (a relying party checking
+  a credential the subject presents) is free.
+- The credential lives in the subject's wallet, not your tenant. You don't
+  pay ongoing storage costs per subject.
+
+**What Verified ID is good for:**
+
+- Issuing employment / role / department credentials that employees can
+  present to third parties (e.g. discount programs, partner portals).
+- Issuing partner-organization attestations (e.g. "this user works for
+  ContosoPartnerCorp") that a relying party can verify cryptographically.
+- Replacing fragile email-based verification flows with cryptographic
+  attestation.
+
+> **Verified ID is not a replacement for B2B guest collaboration.** It's
+> an attestation channel. If those same external users also need to access
+> Teams / SharePoint / apps in your tenant, you still need External ID
+> (free MAU, or P1/P2 for premium features). The two stack.
+
+**When Entra Suite changes the math:**
+
+If you're scaling Verified ID across many internal user populations,
+evaluate whether **Microsoft Entra Suite** is cheaper than buying Verified
+ID + Internet Access + Private Access + Governance + ID Protection
+separately. Entra Suite bundles Verified ID into the per-internal-user
+license — at scale, the bundle usually wins.
+
+**External user populations still use the External ID MAU model** even
+when internal users are on Entra Suite.

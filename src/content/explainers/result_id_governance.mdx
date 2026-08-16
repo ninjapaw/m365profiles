@@ -1,0 +1,54 @@
+---
+title: "Microsoft Entra ID Governance — required for Lifecycle Workflows + access packages"
+resultId: "result_id_governance"
+profile: "admin"
+summary: "Sits above P2. Required for Entitlement Management, Lifecycle Workflows, ML access-review recommendations."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because the user (admin, approver, or reviewer) is
+operating **advanced identity-governance features**: Entitlement
+Management access packages, Lifecycle Workflows, ML-driven access-review
+recommendations, or Privileged Access Groups governance. **Entra ID P2
+alone doesn't cover these** — they require **Entra ID Governance**.
+
+**What Entra ID Governance includes (that P2 does not):**
+
+- **Entitlement Management** — access packages with multi-stage approvals,
+  time-bound assignments, automatic expiration, and external-user
+  invitation as part of an access package workflow.
+- **Lifecycle Workflows** — automated joiner / mover / leaver workflows
+  with built-in tasks (enable account, assign licenses, send welcome
+  email, disable on leave, run custom Logic App, etc.).
+- **ML-driven access-review recommendations** — suggested
+  approve / deny decisions based on user activity, eliminating
+  rubber-stamping.
+- **Privileged Access Groups governance** — role-assignable groups with
+  PIM-style activation workflows.
+
+**Entra ID Governance includes Entra ID P2.** One license covers PIM,
+Identity Protection, *and* Governance — you don't need to stack P2 +
+Governance separately.
+
+> **License every user in the governance flow — not just the admin.**
+> Microsoft's licensing model is consistent: license the **target** of
+> an access package, the **approver**, and the **reviewer** of an access
+> review. A 20-person finance group reviewed quarterly by a single approver
+> needs 21 licenses (20 targets + 1 approver), not just one.
+
+**How this stacks with other SKUs:**
+
+- Already on **M365 E5**? E5 includes P2 but **not** Governance — you
+  still need Governance on top.
+- Already on **Microsoft Entra Suite**? Entra Suite **includes**
+  Governance — no separate purchase.
+- Already on **M365 E7 (Frontier Suite)**? E7 bundles Entra Suite, which
+  bundles Governance — already covered.
+
+**When Governance is overkill:**
+
+- You only need PIM for IT admins → **Entra ID P2** is enough.
+- You only need risk-based CA for everyone → **Entra ID P2** is enough.
+- You only need basic access reviews (without ML recommendations) →
+  **Entra ID P2** is enough; ML recommendations are the Governance uplift.

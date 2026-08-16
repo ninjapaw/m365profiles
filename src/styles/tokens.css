@@ -1,0 +1,144 @@
+/* Design tokens — Fluent / Microsoft 365 inspired palette.
+   Dark-theme overrides live in a single block reused by both the explicit
+   `data-theme="dark"` attribute and the `prefers-color-scheme: dark` media. */
+
+:root {
+  --ms-blue: #0078d4;
+  --ms-blue-dark: #106ebe;
+  --ms-blue-darker: #005a9e;
+  --ms-blue-darkest: #003e72;
+  --ms-blue-light: #deecf9;
+  --ms-blue-lighter: #eff6fc;
+  --ms-navy: #0a1628;
+  --ms-navy-mid: #0f2b5b;
+
+  --ms-square-1: #f25022;
+  --ms-square-2: #7fba00;
+  --ms-square-3: #00a4ef;
+  --ms-square-4: #ffb900;
+
+  --color-text: #201f1e;
+  --color-text-soft: #424242;
+  --color-text-muted: #605e5c;
+  --color-bg: #ffffff;
+  --color-bg-alt: #f8f9fb;
+  --color-bg-tint: #f3f6fa;
+  --color-border: #e1dfdd;
+  --color-border-strong: #c8c6c4;
+
+  --color-success: #107c10;
+  --color-warning: #f7630c;
+  --color-error: #a4262c;
+  --color-purple: #5c2d91;
+
+  /* Theme-aware success / error tokens for tinted-fill UI (toggle buttons,
+     answer pills, summary-row highlights). Light-theme defaults use slightly
+     darker greens / reds than `--color-success` / `--color-error` so they
+     remain AA-readable when used as text on a tinted background. */
+  --color-success-fg: #1a7f37;
+  --color-error-fg: #b32a2a;
+  --color-success-bg: rgba(26, 127, 55, 0.12);
+  --color-error-bg: rgba(179, 42, 42, 0.1);
+  --color-success-bg-subtle: rgba(26, 127, 55, 0.06);
+  --color-error-bg-subtle: rgba(179, 42, 42, 0.06);
+  --color-success-pill-bg: rgba(26, 127, 55, 0.08);
+  --color-error-pill-bg: rgba(179, 42, 42, 0.08);
+
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-modal: 0 24px 60px rgba(0, 0, 0, 0.18);
+
+  --font-sans:
+    "Segoe UI", "Segoe UI Variable", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Roboto,
+    Arial, sans-serif;
+  --font-mono:
+    "Cascadia Code", "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    monospace;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.5rem;
+  --fs-2xl: 2rem;
+  --fs-3xl: 2.5rem;
+
+  --lh-tight: 1.25;
+  --lh-base: 1.55;
+  --lh-relax: 1.7;
+
+  --container-max: 1180px;
+  --container-prose: 760px;
+  --navbar-h: 60px;
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  --footer-bg: #303846;
+  --footer-text: #c2c4ce;
+  --footer-title: #ffffff;
+}
+
+/* Dark palette — applied to both explicit theme + auto preference. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-text: #f3f2f1;
+  --color-text-soft: #d0d0d0;
+  --color-text-muted: #b7b7b7;
+  --color-bg: #111827;
+  --color-bg-alt: #1f2937;
+  --color-bg-tint: #273447;
+  --color-border: #374151;
+  --color-border-strong: #4b5563;
+  /* Accent-tint tokens — light-mode values are near-white blue tints used
+     as subtle accent backgrounds (callouts, hover/active states, hero
+     gradients, halos). In dark mode they must resolve to a subtle
+     dark-blue tint instead, otherwise any text rendered on top becomes
+     light-on-light and disappears. */
+  --ms-blue-light: #23355c;
+  --ms-blue-lighter: #1a2942;
+  --color-success-fg: #4ac26b;
+  --color-error-fg: #ff7b7b;
+  --color-success-bg: rgba(74, 194, 107, 0.18);
+  --color-error-bg: rgba(255, 123, 123, 0.18);
+  --color-success-bg-subtle: rgba(74, 194, 107, 0.12);
+  --color-error-bg-subtle: rgba(255, 123, 123, 0.12);
+  --color-success-pill-bg: rgba(74, 194, 107, 0.15);
+  --color-error-pill-bg: rgba(255, 123, 123, 0.15);
+  --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.35);
+  --shadow-card-hover: 0 10px 28px rgba(0, 0, 0, 0.45);
+  --footer-bg: #0a0f1a;
+  --footer-text: #b3bccb;
+  --footer-title: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-text: #f3f2f1;
+    --color-text-soft: #d0d0d0;
+    --color-text-muted: #b7b7b7;
+    --color-bg: #111827;
+    --color-bg-alt: #1f2937;
+    --color-bg-tint: #273447;
+    --color-border: #374151;
+    --color-border-strong: #4b5563;
+    --ms-blue-light: #23355c;
+    --ms-blue-lighter: #1a2942;
+    --color-success-fg: #4ac26b;
+    --color-error-fg: #ff7b7b;
+    --color-success-bg: rgba(74, 194, 107, 0.18);
+    --color-error-bg: rgba(255, 123, 123, 0.18);
+    --color-success-bg-subtle: rgba(74, 194, 107, 0.12);
+    --color-error-bg-subtle: rgba(255, 123, 123, 0.12);
+    --color-success-pill-bg: rgba(74, 194, 107, 0.15);
+    --color-error-pill-bg: rgba(255, 123, 123, 0.15);
+    --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.35);
+    --shadow-card-hover: 0 10px 28px rgba(0, 0, 0, 0.45);
+    --footer-bg: #0a0f1a;
+    --footer-text: #b3bccb;
+    --footer-title: #ffffff;
+  }
+}

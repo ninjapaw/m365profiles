@@ -1,0 +1,57 @@
+---
+title: "Microsoft 365 E5 Compliance — Purview features without full E5"
+resultId: "result_e5_compliance_only"
+profile: "admin"
+summary: "Purview E5 features as an add-on. Cheaper than full E5 when Defender Suite isn't also in scope."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because the user (or workload) needs **Purview E5
+features** — but you've confirmed Defender XDR / Defender Suite is **not**
+also in scope. The **E5 Compliance add-on** (also marketed as the
+Microsoft Purview Suite) covers Purview without forcing a full E5
+upgrade.
+
+**What E5 Compliance includes:**
+
+- **Insider Risk Management** — ML-driven detection of risky user
+  behavior (data exfil, departing-employee patterns, IP theft).
+- **Communication Compliance** — supervised review of chat / email for
+  policy violations.
+- **Premium eDiscovery** — case-based legal hold, custodian
+  communications, predictive coding / TAR, advanced indexing.
+- **Endpoint DLP** — DLP policies enforced on Windows / Mac endpoint
+  activity (file copy, USB, cloud upload, printing).
+- **Records Management** — retention with disposition review, file plan,
+  event-based retention.
+- **Customer Lockbox** — Microsoft engineer access to your tenant
+  requires your explicit approval per access request.
+- **Customer Key** — bring-your-own-key encryption for Exchange / SharePoint
+  / OneDrive / Teams content.
+- **Privileged Access Management for Office** — JIT elevation for
+  Exchange / SharePoint tenant-admin operations.
+- **Information Barriers** — block communication / collaboration between
+  defined segments.
+- **Audit (Premium)** — high-bandwidth audit, 1-year default retention
+  (10-year with add-on), Audit Premium events.
+
+**E5 Compliance also includes Entra ID P2.** Same identity-tier benefit
+as full E5 — covers PIM and Identity Protection for the same user.
+
+> **License every user in scope of any covered Purview policy — not just
+> the admin who configures it.** Insider Risk Management licensing
+> requires the SKU on every monitored user; eDiscovery Premium requires
+> it on every custodian; endpoint DLP requires it on every endpoint user
+> whose activity is in scope. Don't license just the IR analyst.
+
+**Several E5 Compliance components are tenant-wide-not-scopeable** —
+Customer Lockbox, Customer Key, Information Barriers. Once enabled, they
+apply tenant-wide; you can't scope them to a subset of users. Treat those
+as tenant-level decisions, not per-user ones.
+
+**When to step up to full E5:** if you later also need Defender XDR
+(Defender for Endpoint P2, Defender for Identity, Defender for Cloud
+Apps, Defender for Office 365 P2), upgrading the user from E3 + E5
+Compliance to full E5 is usually the cleanest path — the bundle math
+favors E5 once both halves are in scope.

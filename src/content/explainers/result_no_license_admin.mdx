@@ -1,0 +1,35 @@
+---
+title: "No license required — service / admin-only accounts"
+resultId: "result_no_license_admin"
+profile: "admin"
+summary: "When an account legitimately needs no Microsoft 365 license: directory-only admins, break-glass accounts, and certain service principals."
+authored: "2025-11"
+aiAssisted: true
+---
+
+Some identities **do not require** a Microsoft 365 license to function:
+
+- **Directory-only admin accounts** that exist to hold a role assignment and
+  never mailbox, file, or Teams.
+- **Break-glass / emergency-access accounts** — Microsoft's published
+  guidance explicitly does not require a license; you assign Entra roles
+  directly and exclude them from the CA policies that would lock you out.
+- **Service principals / app registrations** for daemon-style applications.
+  These are not user accounts and never need a per-user license.
+- **Workload Identities** under Entra Workload ID standalone licensing, which
+  is per-application not per-user.
+
+**Don't apply this to:**
+
+- **Shared mailboxes** under 50 GB — those don't need a license either, but
+  the moment you cross 50 GB or enable in-place archive, Exchange Online
+  Plan 1 (or higher) becomes mandatory.
+- **Admin accounts that also use Office / Teams / SharePoint** — those need
+  whatever SKU covers the workloads they actually consume.
+- **Service accounts that interactively sign in to Office.com** — those are
+  user accounts in practice and should be replaced with a managed identity
+  or service principal.
+
+> **Audit tip:** Run an unlicensed-user report monthly. A user with a mailbox
+> *and* no license is a compliance ticking clock. A directory-only admin with
+> no mailbox is fine.

@@ -1,0 +1,48 @@
+---
+title: "Daily-use account that also holds admin roles"
+resultId: "result_primary_account"
+profile: "admin"
+summary: "If one account both consumes services and does admin work, it needs a base service license PLUS any premium tier the admin work requires."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because the account in question is **not** a dedicated
+admin-only identity — it's a daily-use account (reads mail, joins Teams,
+edits docs) that *also* happens to hold admin roles. Microsoft's
+privileged-access guidance recommends splitting those two jobs into
+separate identities, but until that happens, the single account has to be
+licensed for *both* jobs.
+
+**Why the split matters (and what to plan for):**
+
+- A truly dedicated admin-only account usually only needs **Entra ID Free**
+  — included with the tenant, no per-user cost.
+- A daily-use account always needs a per-user base service license, because
+  it consumes Exchange / Teams / SharePoint / OneDrive.
+- When you run one account for both jobs, the admin work pulls in the
+  premium tier; the service consumption pulls in the base SKU. You pay
+  for both.
+
+> **Treat splitting these identities as a roadmap item, not a "someday"
+> wish.** A dedicated privileged admin pair (one daily-use account, one
+> separate `admin@` account with FIDO2 and PIM) is the foundation of the
+> Microsoft Securing Privileged Access (SPA) model. Until you split,
+> every "use" of the admin account from a daily-use device is a
+> credential-exposure event.
+
+**How to size the license:**
+
+1. **Run the next two questions in the IW flow** to land on the base SKU
+   (E3, E3 + Copilot, E5, or E7). That covers Exchange / Teams /
+   SharePoint / OneDrive / Office.
+2. **Then run the admin tree** as a separate pass to identify which
+   premium add-ons the admin role actually triggers (Defender Suite,
+   Purview E5, Intune Suite, Entra ID P2, Entra Suite, Teams Premium,
+   Copilot, etc.).
+3. **Layer the add-ons on top of the base SKU** for that one user.
+
+**Tenant-baseline mapping:** if your tenant is Business Premium /
+Frontline / Education / Government / Nonprofit, the E3 / E5 / E7 answer
+maps to the equivalent SKU (Business Premium ≈ E3, A3 ≈ E3, A5 ≈ E5, G3
+≈ E3, G5 ≈ E5, NSP E3 ≈ E3, NSP E5 ≈ E5).

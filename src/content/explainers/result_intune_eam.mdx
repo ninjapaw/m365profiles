@@ -1,0 +1,54 @@
+---
+title: "Intune Enterprise App Management — standalone"
+resultId: "result_intune_eam"
+profile: "admin"
+summary: "Curated catalog of pre-packaged Win32 apps with auto-update detection. Removes manual repackage / re-deploy per vendor update."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because the user / fleet needs **Intune Enterprise App
+Management (EAM)** — Microsoft's curated catalog of pre-packaged Win32
+applications with built-in auto-update detection — and no other Intune
+premium feature is in scope.
+
+**What EAM solves:**
+
+The traditional Intune Win32 app deployment pipeline is:
+
+1. Download the vendor installer.
+2. Wrap it as `.intunewin` (Microsoft Win32 Content Prep Tool).
+3. Author detection rules, install / uninstall commands, requirements.
+4. Upload to Intune. Test. Deploy.
+5. Vendor releases a new version. **Repeat steps 1–4 every time.**
+
+For 50+ apps across hundreds of vendors, this becomes a full-time job.
+
+**What EAM provides:**
+
+- **Pre-packaged Win32 apps** in the Intune catalog — Microsoft has done
+  the packaging, detection, and install-command work for you.
+- **Built-in update detection** — when the vendor releases a new version,
+  the catalog updates automatically; you choose when to deploy the update
+  through your existing rings.
+- **Same Win32 deployment workflow** for the assignment side — devices,
+  groups, install context, restart behavior all work the same way.
+
+> **EAM is the packaging / discovery / update-detection automation.** The
+> deployment itself still uses the standard Intune Win32 app pipeline.
+> If you already have a sophisticated packaging team and prefer full
+> control over every `.intunewin`, EAM is value-additive but not
+> mandatory.
+
+**The "one feature only" math:**
+
+The Intune Suite bundles all six premium features. If EAM is the only
+one this user needs, paying for the bundle is wasteful. EAM standalone
+covers exactly this scenario.
+
+> **Re-evaluate the moment a second Intune premium feature comes into
+> scope** for the same user — at two premium features, the Intune Suite
+> usually wins.
+
+**Not bundled:** Entra ID P2. License separately if admins also operate
+PIM / Identity Protection.

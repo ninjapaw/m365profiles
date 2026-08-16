@@ -1,0 +1,37 @@
+---
+title: "Microsoft 365 E5 — what it actually gets you"
+resultId: "result_e5_full"
+profile: "iw"
+summary: "Plain-English read on why an information worker ends up on E5 instead of E3 or Business Premium."
+aiAssisted: true
+---
+
+E5 is the right answer when the same identity needs **all three** of:
+
+- **Advanced security analytics** beyond just endpoint AV — Defender for Identity
+  watches AD signals, Defender for Cloud Apps shadows SaaS usage, and Defender
+  XDR P2 correlates the lot.
+- **Information protection at the data layer**, not just the edge — Purview
+  records management, communication compliance, eDiscovery Premium, and customer
+  key.
+- **Premium identity controls** — Entra ID P2's Privileged Identity Management
+  (PIM), Identity Protection risk policies, and access reviews.
+
+If only one of those is in scope, you almost always save money by buying the
+relevant add-on on top of E3 (Defender for Endpoint P2, Defender for Office P2,
+Entra ID P2, or the Purview E5 Compliance add-on). E5 only wins when you need
+the whole stack.
+
+> **Tradeoff:** E5 prices roughly 60% above E3 per seat. If only a privileged
+> admin subset needs PIM, license those few accounts with the Entra ID P2 add-on
+> instead.
+
+> **Microsoft's posture (Secure Future Initiative):** Several E5 protections
+> are tenant-wide and not scopeable — e.g. Defender for Identity, Customer
+> Lockbox, Customer Key. Per Microsoft's [Secure Future Initiative](https://www.microsoft.com/en-us/trust-center/security/secure-future-initiative)
+> and Satya Nadella's [May 2024 SFI memo](https://blogs.microsoft.com/blog/2024/05/03/prioritizing-security-above-all-else/),
+> “security protections are enabled and enforced by default, require no extra
+> effort, and are not optional.” Microsoft's official recommendation is to
+> enable those tenant-wide protections. The [Microsoft Product Terms](https://www.microsoft.com/licensing/terms/)
+> still require an E5-tier licence for every user who benefits — weigh both
+> statements when sizing the E5 footprint.

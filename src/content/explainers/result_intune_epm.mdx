@@ -1,0 +1,48 @@
+---
+title: "Intune Endpoint Privilege Management (EPM) — standalone"
+resultId: "result_intune_epm"
+profile: "admin"
+summary: "Cheapest path when EPM is the only Intune premium feature this user needs. If 2+ Intune premiums apply, Intune Suite wins."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because the user needs **Microsoft Intune Endpoint
+Privilege Management (EPM)** — and **no other** Intune premium feature
+(Remote Help, Tunnel for MAM, Cloud PKI, Enterprise App Management,
+Advanced Endpoint Analytics) is in scope. EPM standalone is cheaper than
+the full Intune Suite when EPM is the only piece you need.
+
+**What EPM does:**
+
+- Lets standard users **elevate approved applications** (e.g. installers,
+  developer tools) **without holding local admin rights** on Windows.
+- Reduces standing local-admin surface — the #1 contributor to endpoint
+  privilege escalation paths.
+- Centrally managed elevation rules in the Intune admin center; per-app
+  audit trail of every elevation event.
+
+**The "one feature only" math:**
+
+The Intune Suite bundles all six premium features. If EPM is the only
+one this user needs, paying for the bundle is wasteful. EPM standalone
+covers exactly this scenario.
+
+> **Re-evaluate the moment a second Intune premium feature comes into
+> scope.** If you later add Remote Help, Tunnel for MAM, Cloud PKI,
+> Enterprise App Management, or Advanced Endpoint Analytics **for the
+> same user**, the Intune Suite becomes cheaper than stacking two or
+> more standalones. The break-even is typically two premium features —
+> at three, Suite always wins.
+
+**What's already included** (no Intune premium add-on needed):
+
+- Base Intune device management, app deployment, compliance policies,
+  configuration profiles, baseline endpoint analytics — all in M365 E3,
+  E5, E7, Business Premium, and F3.
+
+**What's not included in any Intune standalone add-on:**
+
+- **Entra ID P2** is not bundled. If the same user is also a PIM eligible
+  admin or in scope of Identity Protection, license P2 separately (or pick
+  an SKU that includes both, like M365 E5).

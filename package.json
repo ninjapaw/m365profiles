@@ -1,0 +1,49 @@
+{
+  "name": "m365profiles",
+  "version": "2.1.0",
+  "description": "Interactive Microsoft 365 licensing decision tree — Astro multi-page edition.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "npm run validate-tree && astro build && npm run test:links",
+    "preview": "astro preview",
+    "validate-tree": "node scripts/validate-tree.js",
+    "test:walk": "node scripts/test-tree-walk.mjs",
+    "test:state": "node scripts/test-state-invariants.mjs",
+    "test:links": "node scripts/test-site-links.mjs",
+    "typecheck": "astro check",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#dist\" \"#.astro\"",
+    "lint": "npm run lint:md",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "check": "npm run validate-tree && npm run typecheck && npm run lint && npm run format",
+    "test": "npm run validate-tree && npm run test:walk && npm run test:state"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ninjapaw/m365profiles.git"
+  },
+  "license": "MIT",
+  "author": "Ninja Paws contributors",
+  "homepage": "https://m365profiles.com",
+  "bugs": {
+    "url": "https://github.com/ninjapaw/m365profiles/issues"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.0.0",
+    "@astrojs/sitemap": "^3.2.0",
+    "astro": "^5.5.0",
+    "jspdf": "^2.5.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "markdownlint-cli2": "^0.18.0",
+    "prettier": "^3.4.0",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^5.6.0"
+  }
+}

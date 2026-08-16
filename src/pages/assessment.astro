@@ -1,0 +1,1155 @@
+---
+import Base from "@layouts/Base.astro";
+import { pageTitle } from "@lib/site";
+import { withBase } from "@lib/paths";
+import { TREE, START_NODE_ID, TOTAL_MAJOR_STEPS } from "@lib/tree";
+
+// Serialize tree into a JSON island for the client controller.
+const treeConfig = {
+  tree: TREE,
+  startId: START_NODE_ID,
+  totalSteps: TOTAL_MAJOR_STEPS,
+};
+
+const referenceHref = withBase("/reference");
+const title = pageTitle("Assessment");
+const description =
+  "Step-by-step Microsoft 365 licensing decision tree. Card-based questionnaire with source citations and downloadable PDF handout.";
+---
+
+<Base title={title} description={description} pageClass="page-assessment" ogImageSlug="assessment">
+  <section class="assessment-intro">
+    <div class="container">
+      <p class="eyebrow">Interactive assessment</p>
+      <h1>Find the right Microsoft 365 license</h1>
+      <p class="lede">
+        Answer a few short questions about the identity profile and feature requirements. Every
+        screen cites Microsoft Learn and other primary sources so you can verify each step. Your
+        answers stay on this device — no accounts, no tracking.
+      </p>
+    </div>
+  </section>
+
+  <section class="assessment-shell">
+    <div class="container">
+      <div id="assessment" aria-live="polite" aria-busy="false">
+        <noscript>
+          <div class="callout callout--warn">
+            <strong>JavaScript is required for the interactive assessment.</strong>
+            Browse the <a href={referenceHref}>Reference catalog</a>
+            instead to read every recommendation as a static page.
+          </div>
+        </noscript>
+      </div>
+    </div>
+  </section>
+
+  <!-- SSR-rendered tree data — consumed by the client controller. -->
+  <script is:inline id="tree-data" type="application/json" set:html={JSON.stringify(treeConfig)} />
+
+  <script>
+    import "@client/assessment.ts";
+  </script>
+</Base>
+
+<style is:global>
+  .page-assessment .assessment-intro {
+    background: var(--color-bg-tint);
+    padding: 2.5rem 0 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .page-assessment .eyebrow {
+    text-transform: uppercase;
+    color: var(--ms-blue);
+    font-weight: 700;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.1em;
+    margin: 0 0 0.25rem;
+  }
+  .page-assessment h1 {
+    margin: 0 0 0.5rem;
+    font-size: var(--fs-2xl);
+  }
+  .page-assessment .lede {
+    max-width: 720px;
+    color: var(--color-text-soft);
+    margin: 0;
+  }
+  .assessment-shell {
+    padding: 2rem 0 4rem;
+  }
+
+  /* ---------- Assessment card internals ---------- */
+  .assess__controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .question-card {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .question-card__q {
+    font-size: var(--fs-xl);
+    line-height: 1.35;
+    margin: 0 0 0.75rem;
+    color: var(--color-text);
+  }
+  /* Headline + prompt block (when a question card uses an explicit `title`). */
+  .question-card__title {
+    font-size: var(--fs-2xl);
+    line-height: 1.25;
+    margin: 0 0 0.5rem;
+    color: var(--color-text);
+    letter-spacing: -0.01em;
+  }
+  .question-card__prompt {
+    background: var(--color-bg-tint);
+    border-left: 4px solid var(--ms-blue);
+    border-radius: var(--radius);
+    padding: 0.85rem 1.1rem 0.95rem;
+    margin: 0.5rem 0 1.1rem;
+  }
+  .question-card__prompt-label {
+    display: inline-block;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-soft);
+    margin-bottom: 0.25rem;
+  }
+  .question-card__prompt-text {
+    margin: 0;
+    font-size: var(--fs-md);
+    line-height: 1.55;
+    color: var(--color-text);
+  }
+  .question-card__sub {
+    color: var(--color-text-soft);
+    font-size: var(--fs-md);
+    line-height: 1.55;
+    margin: 0 0 0.85rem;
+  }
+  .question-card__para {
+    color: var(--color-text);
+    font-size: var(--fs-md);
+    line-height: 1.6;
+    margin: 0 0 1rem;
+  }
+
+  /* Per-card "Copy details" toolbar (top-right of card). */
+  .card__toolbar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin: -0.25rem 0 0.5rem;
+  }
+  .btn-sm {
+    font-size: var(--fs-xs);
+    padding: 0.35em 0.75em;
+    line-height: 1.2;
+    border-radius: var(--radius-sm, 6px);
+  }
+  @media (min-width: 720px) {
+    .card__toolbar {
+      position: absolute;
+      top: 0.85rem;
+      right: 0.85rem;
+      margin: 0;
+    }
+    /* Reserve right-edge room so long question headings don't collide. */
+    .question-card > .question-card__q,
+    .question-card > .question-card__title,
+    .info-card > .card__title {
+      padding-right: 8.5rem;
+    }
+  }
+  .question-card__help {
+    color: var(--color-text-soft);
+    margin: 0 0 1.25rem;
+    font-size: var(--fs-md);
+    line-height: 1.55;
+  }
+
+  .rationale {
+    background: var(--color-bg-tint);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.4rem 1rem;
+    font-size: var(--fs-sm);
+  }
+  .rationale dt {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .rationale dd {
+    margin: 0;
+    color: var(--color-text-soft);
+  }
+
+  .examples {
+    margin: 1rem 0;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.5rem 1rem;
+    background: var(--color-bg-alt);
+  }
+  .examples summary {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0.25rem 0;
+    color: var(--color-text-soft);
+  }
+  .examples ul {
+    margin: 0.5rem 0 0.5rem 1.25rem;
+    padding: 0;
+  }
+  .examples li {
+    margin-bottom: 0.35rem;
+    color: var(--color-text-soft);
+    font-size: var(--fs-sm);
+  }
+
+  .yesno {
+    display: flex;
+    gap: 0.75rem;
+    margin: 1.5rem 0 0.5rem;
+    flex-wrap: wrap;
+  }
+  .yesno .btn {
+    min-width: 110px;
+    padding: 0.75em 1.5em;
+    font-size: var(--fs-base);
+  }
+
+  /* ---------- Per-product scope breakdown (mini-card grid) ---------- */
+  .scope-breakdown {
+    margin: 1.5rem 0 1rem;
+  }
+  .scope-breakdown__head {
+    margin: 0 0 0.85rem;
+  }
+  .scope-breakdown__title {
+    margin: 0 0 0.25rem;
+    font-size: var(--fs-md);
+    color: var(--color-text);
+  }
+  .scope-breakdown__intro {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--color-text-soft);
+    line-height: 1.5;
+  }
+  .scope-breakdown__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+  @media (min-width: 640px) {
+    .scope-breakdown__list {
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+  }
+  /* Each product is its own mini-card. */
+  .scope-item {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-bg);
+    overflow: hidden;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s,
+      transform 0.15s;
+  }
+  .scope-item:hover {
+    border-color: var(--color-border-strong, var(--ms-blue));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+  .scope-item[open] {
+    border-color: var(--ms-blue);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    /* Span all columns when expanded so the detail has breathing room. */
+    grid-column: 1 / -1;
+  }
+  .scope-item > summary {
+    cursor: pointer;
+    padding: 0.85rem 1rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    column-gap: 0.55rem;
+    row-gap: 0.2rem;
+    font-size: var(--fs-sm);
+    list-style: none;
+    user-select: none;
+  }
+  .scope-item > summary::-webkit-details-marker {
+    display: none;
+  }
+  .scope-item > summary::before {
+    content: "▸";
+    color: var(--color-text-soft);
+    font-size: 0.9em;
+    transition: transform 0.15s;
+    grid-column: 1;
+    grid-row: 1;
+    line-height: 1;
+  }
+  .scope-item[open] > summary::before {
+    transform: rotate(90deg);
+    display: inline-block;
+  }
+  .scope-item > summary:hover {
+    background: var(--color-bg-tint);
+  }
+  .scope-item__name {
+    font-weight: 600;
+    color: var(--color-text);
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .scope-item__sku {
+    grid-column: 2 / -1;
+    grid-row: 2;
+    color: var(--color-text-soft);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    margin: 0;
+  }
+  .scope-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.18em 0.55em;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.3;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .scope-badge--per-user {
+    background: #e8f1fe;
+    color: #0b4a8a;
+    border-color: #b9d4f4;
+  }
+  .scope-badge--per-device {
+    background: #eef5ee;
+    color: #1f5d2a;
+    border-color: #c2dec5;
+  }
+  .scope-badge--per-mailbox {
+    background: #f1ecfb;
+    color: #4a2a8a;
+    border-color: #d4c4ee;
+  }
+  /* Scopeable tenant-wide features: calm teal — you CAN scope them down to
+     licensed users, so the visual cue is 'manageable, info'. */
+  .scope-badge--tenant-wide-scopeable {
+    background: #e0f2f4;
+    color: #0f5b6a;
+    border-color: #a6d6dd;
+  }
+  /* Not-scopeable is a true warning red — it signals 'all-or-nothing,
+     customer decision required'. */
+  .scope-badge--tenant-wide-not-scopeable {
+    background: #fbe1e1;
+    color: #7a1d1d;
+    border-color: #efb4b4;
+  }
+  :root[data-theme="dark"] .scope-badge--per-user {
+    background: #14304f;
+    color: #cfe3ff;
+    border-color: #2a5688;
+  }
+  :root[data-theme="dark"] .scope-badge--per-device {
+    background: #173820;
+    color: #c8e8cf;
+    border-color: #2f6238;
+  }
+  :root[data-theme="dark"] .scope-badge--per-mailbox {
+    background: #271a44;
+    color: #dccff2;
+    border-color: #4d3585;
+  }
+  :root[data-theme="dark"] .scope-badge--tenant-wide-scopeable {
+    background: #173338;
+    color: #b0e0e6;
+    border-color: #336670;
+  }
+  :root[data-theme="dark"] .scope-badge--tenant-wide-not-scopeable {
+    background: #4a1818;
+    color: #fbc8c8;
+    border-color: #872a2a;
+  }
+  .scope-item__body {
+    padding: 0 1rem 1rem;
+    border-top: 1px solid var(--color-border);
+    margin-top: 0.1rem;
+    padding-top: 0.85rem;
+    color: var(--color-text-soft);
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+  }
+  .scope-item__body p {
+    margin: 0.4rem 0;
+  }
+  .scope-item__body strong {
+    color: var(--color-text);
+  }
+  /* Advisory banner shown at the top of every tenant-wide-not-scopeable
+     mini-card body — tells the customer the card is informational and
+     does not push the Yes / No on the question. Cool-blue accent so it
+     reads as guidance, distinct from the amber two-statements footnote
+     at the bottom of the same card. */
+  .scope-item__advisory {
+    margin: 0 0 0.85rem !important;
+    padding: 0.65rem 0.8rem;
+    border-radius: 6px;
+    background: #eef4fb;
+    border: 1px solid #bcd3ec;
+    color: #1a4a7a;
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+  }
+  .scope-item__advisory strong {
+    color: #103b66;
+  }
+  :root[data-theme="dark"] .scope-item__advisory {
+    background: #142535;
+    border-color: #2a4b6e;
+    color: #b9d4ee;
+  }
+  :root[data-theme="dark"] .scope-item__advisory strong {
+    color: #d5e6f7;
+  }
+  .scope-item__examples,
+  .scope-item__docs {
+    margin: 0.4rem 0 0.2rem 1.1rem;
+    padding: 0;
+  }
+  .scope-item__examples li {
+    margin-bottom: 0.25rem;
+  }
+  .scope-item__docs {
+    border-top: 1px dashed var(--color-border);
+    padding-top: 0.5rem;
+    margin-top: 0.6rem;
+    list-style: none;
+  }
+  .scope-item__docs li {
+    margin-bottom: 0.25rem;
+  }
+  .scope-item__docs a {
+    font-size: var(--fs-xs);
+  }
+
+  /* Footnote shown under every tenant-wide-not-scopeable mini-card —
+     spells out Microsoft's Secure Future Initiative statement AND the
+     Microsoft Product Terms statement together, with direct links to
+     both official sources so the customer can decide how to balance
+     them. Warning-red block to match the not-scopeable badge — the
+     asterisk on the badge above points here. */
+  .scope-item__footnote {
+    display: block;
+    margin: 0.85rem 0 0.2rem;
+    padding: 0.8rem 0.95rem;
+    background: #fdeded;
+    border: 1px solid #efb4b4;
+    border-left: 3px solid #b32a2a;
+    border-radius: var(--radius-sm, 6px);
+    color: #5a1818;
+    font-size: var(--fs-xs);
+    line-height: 1.6;
+  }
+  .scope-item__footnote p {
+    margin: 0.5rem 0;
+  }
+  .scope-item__footnote-title {
+    margin-top: 0 !important;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.01em;
+  }
+  .scope-item__footnote-section {
+    padding-left: 0.7rem;
+    border-left: 2px solid #d59494;
+  }
+  .scope-item__footnote-note {
+    margin-top: 0.7rem !important;
+    padding-top: 0.55rem;
+    border-top: 1px dashed #d59494;
+    font-size: var(--fs-xs);
+  }
+  .scope-item__footnote a {
+    color: #7a1d1d;
+    text-decoration: underline;
+  }
+  :root[data-theme="dark"] .scope-item__footnote {
+    background: #2a1010;
+    border-color: #872a2a;
+    border-left-color: #d04444;
+    color: #fbc8c8;
+  }
+  :root[data-theme="dark"] .scope-item__footnote-section {
+    border-left-color: #872a2a;
+  }
+  :root[data-theme="dark"] .scope-item__footnote-note {
+    border-top-color: #872a2a;
+  }
+  :root[data-theme="dark"] .scope-item__footnote a {
+    color: #ffc4c4;
+  }
+
+  /* Small legend in the breakdown header that explains the asterisk on the
+     badge — only emitted when at least one not-scopeable item is present. */
+  .scope-breakdown__legend {
+    margin: 0.5rem 0 0;
+    font-size: var(--fs-xs);
+    color: var(--color-text-soft);
+  }
+  .scope-breakdown__legend-star {
+    color: var(--color-error-fg);
+    font-weight: 700;
+  }
+
+  /* ===== Interactive / Show-all mode toggle =====================
+     Sits at the top of every productBreakdown header. Two pill-style
+     buttons let the user choose:
+       • "Show all & decide overall" (default) — read the cards yourself
+         and pick the overall Yes/No below. No sub-data captured.
+       • "Walk through interactively" — answer Yes/No on each card; the
+         engine computes the overall and persists every pick to the
+         summary + PDF + trail.                                          */
+  .scope-breakdown__mode {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0.85rem 0 0.25rem;
+    padding: 0.85rem 1rem;
+    background: var(--color-bg);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+  }
+  .scope-breakdown__mode-label {
+    font-size: 0.92rem;
+    color: var(--color-text-soft);
+  }
+  .scope-breakdown__mode-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+  @media (min-width: 640px) {
+    .scope-breakdown__mode-options {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .scope-mode-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    text-align: left;
+    padding: 0.75rem 0.95rem;
+    background: var(--color-card-bg, var(--color-bg));
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font: inherit;
+    color: var(--color-text);
+    transition:
+      border-color 0.15s,
+      background 0.15s,
+      box-shadow 0.15s;
+  }
+  .scope-mode-btn:hover {
+    border-color: var(--ms-blue);
+    background: var(--ms-blue-lighter);
+  }
+  .scope-mode-btn:focus-visible {
+    outline: 2px solid var(--ms-blue);
+    outline-offset: 2px;
+  }
+  .scope-mode-btn--active {
+    border-color: var(--ms-blue);
+    background: var(--ms-blue-lighter);
+    box-shadow: 0 0 0 2px var(--ms-blue) inset;
+  }
+  .scope-mode-btn__icon {
+    flex: 0 0 1.4rem;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+  .scope-mode-btn__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+  .scope-mode-btn__title {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .scope-mode-btn__hint {
+    font-size: 0.85rem;
+    color: var(--color-text-soft);
+    line-height: 1.35;
+  }
+  .scope-breakdown__mode-status {
+    margin: 0;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.92rem;
+    background: var(--ms-blue-lighter);
+    border-left: 3px solid var(--ms-blue);
+    border-radius: var(--radius);
+    color: var(--color-text);
+  }
+  .scope-status--yes {
+    color: var(--color-success-fg);
+  }
+  .scope-status--no {
+    color: var(--color-error-fg);
+  }
+
+  /* ===== Per-item decision row (interactive mode) ==============
+     Sits inside each scope-item__body when interactive mode is on
+     and the item is scopeable. Two Yes/No buttons + optional Clear.
+
+     Mechanically mirrors `.btn` (inline-flex centering, font-weight 600
+     baseline, font-size var(--fs-sm), :active translateY, same transition
+     set, [disabled] handling, focus-visible ring) so both button systems
+     feel like they're from the same design system. The visual *idiom*
+     differs intentionally — main Yes/No are filled commit buttons
+     (the primary action), sub-card Yes/No are neutral toggle buttons
+     (two equal-weight choices). Selection swaps the interior fill to a
+     success / error tint rather than adding an outer halo. */
+  .scope-item__decide {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.7rem 0.85rem;
+    margin: 0 0 0.7rem;
+    background: var(--ms-blue-lighter);
+    border: 1px solid var(--ms-blue);
+    border-radius: var(--radius);
+  }
+  .scope-item[data-answered="yes"] > summary {
+    background: var(--color-success-bg-subtle);
+  }
+  .scope-item[data-answered="no"] > summary {
+    background: var(--color-error-bg-subtle);
+  }
+  .scope-item__decide-label {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .scope-item__decide-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .scope-decide-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    flex: 0 1 auto;
+    min-width: 9rem;
+    padding: 0.5rem 0.9rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    line-height: 1.2;
+    color: var(--color-text);
+    white-space: nowrap;
+    transition:
+      background 0.15s,
+      border-color 0.15s,
+      color 0.15s,
+      transform 0.05s;
+  }
+  .scope-decide-btn:hover {
+    background: var(--color-bg-tint);
+    border-color: var(--ms-blue);
+    color: var(--ms-blue);
+  }
+  .scope-decide-btn:focus-visible {
+    outline: 2px solid var(--ms-blue);
+    outline-offset: 2px;
+  }
+  .scope-decide-btn:active {
+    transform: translateY(1px);
+  }
+  .scope-decide-btn[disabled],
+  .scope-decide-btn[aria-disabled="true"] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .scope-decide-btn--yes.scope-decide-btn--active {
+    background: var(--color-success-bg);
+    border-color: var(--color-success-fg);
+    color: var(--color-success-fg);
+    font-weight: 700;
+  }
+  .scope-decide-btn--yes.scope-decide-btn--active:hover {
+    background: var(--color-success-bg);
+    border-color: var(--color-success-fg);
+    color: var(--color-success-fg);
+  }
+  .scope-decide-btn--no.scope-decide-btn--active {
+    background: var(--color-error-bg);
+    border-color: var(--color-error-fg);
+    color: var(--color-error-fg);
+    font-weight: 700;
+  }
+  .scope-decide-btn--no.scope-decide-btn--active:hover {
+    background: var(--color-error-bg);
+    border-color: var(--color-error-fg);
+    color: var(--color-error-fg);
+  }
+  /* Clear button — tertiary action, composes with btn-ghost feel
+     (transparent border, soft text, bg tint on hover). */
+  .scope-decide-btn--clear {
+    min-width: 5.5rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    background: transparent;
+    border-color: transparent;
+    color: var(--color-text-soft);
+  }
+  .scope-decide-btn--clear:hover {
+    background: var(--color-bg-tint);
+    border-color: transparent;
+    color: var(--color-text);
+  }
+
+  /* Per-item answer pill shown in the summary header strip. */
+  .scope-item__answer-pill {
+    margin-left: auto;
+    padding: 0.18rem 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+  }
+  .scope-item__answer-pill--yes {
+    color: var(--color-success-fg);
+    background: var(--color-success-pill-bg);
+  }
+  .scope-item__answer-pill--no {
+    color: var(--color-error-fg);
+    background: var(--color-error-pill-bg);
+  }
+
+  /* ===== Yes/No commit buttons — recommendation styling ==========
+     In interactive mode, the engine highlights the computed answer
+     (Yes or No) based on per-item picks. Both buttons remain clickable. */
+  .yesno--interactive .btn--recommended {
+    box-shadow:
+      0 0 0 2px var(--ms-blue),
+      0 0 0 4px var(--ms-blue-lighter);
+    position: relative;
+  }
+  .yesno--interactive .btn--recommended::after {
+    content: " ← computed";
+    font-size: 0.75rem;
+    font-weight: 500;
+    opacity: 0.7;
+    margin-left: 0.35rem;
+  }
+  .yesno--interactive .btn--secondary-recommendation {
+    opacity: 0.55;
+    filter: grayscale(0.4);
+  }
+  /* Finale state — applied to the outer Yes/No row when the user has
+     just clicked "Finish final determination" in the walkthrough. Adds
+     a one-shot pulse on the recommended button so it's unmistakable. */
+  .yesno--finale .btn--recommended {
+    box-shadow:
+      0 0 0 3px var(--ms-blue),
+      0 0 0 7px var(--ms-blue-lighter);
+    animation: walkthrough-pulse 1.4s ease-out 1;
+  }
+  @keyframes walkthrough-pulse {
+    0% {
+      transform: scale(1);
+      box-shadow:
+        0 0 0 0 var(--ms-blue),
+        0 0 0 0 var(--ms-blue-lighter);
+    }
+    50% {
+      transform: scale(1.04);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow:
+        0 0 0 3px var(--ms-blue),
+        0 0 0 7px var(--ms-blue-lighter);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .yesno--finale .btn--recommended {
+      animation: none;
+    }
+  }
+
+  /* ===== Walkthrough mode (interactive sub-cards, one-at-a-time) =======
+     In walkthrough mode the productBreakdown list switches to a single
+     column so the active card has full width, with previously-answered
+     cards collapsed above it. A small header strip shows progress + a
+     Back button. After every aggregable card is answered, a "Finish
+     final determination" button appears. Clicking it reveals a reasoning
+     summary and the outer Yes/No commit row (with the computed answer
+     pulsing for prominence). */
+  .scope-breakdown--walkthrough .scope-breakdown__list,
+  .scope-breakdown--walkthrough-finished .scope-breakdown__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .walkthrough-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0.85rem 0 0.5rem;
+    padding: 0.6rem 0.85rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+  .walkthrough-header__progress {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 0;
+    flex: 1 1 14rem;
+  }
+  .walkthrough-header__step {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .walkthrough-progress {
+    width: 100%;
+    height: 0.45rem;
+    background: var(--color-border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .walkthrough-progress__bar {
+    height: 100%;
+    background: var(--ms-blue);
+    border-radius: 999px;
+    transition: width 0.25s ease-out;
+  }
+  .walkthrough-header__back {
+    flex: 0 0 auto;
+  }
+
+  /* Reviewed cards — collapsed by default, subdued chrome so the active
+     card visually dominates. Click the summary to expand and edit. */
+  .scope-item--reviewed {
+    opacity: 0.85;
+  }
+  .scope-item--reviewed > summary {
+    background: var(--color-bg);
+  }
+  .scope-item--reviewed[data-answered="yes"] > summary {
+    background: var(--color-success-bg-subtle);
+  }
+  .scope-item--reviewed[data-answered="no"] > summary {
+    background: var(--color-error-bg-subtle);
+  }
+  .scope-item--reviewed:hover {
+    opacity: 1;
+  }
+
+  /* Active card — the one the user is currently on. Stronger border so
+     it's visually obvious which card is asking for an answer. */
+  .scope-item--active-step {
+    border-color: var(--ms-blue);
+    box-shadow: 0 0 0 1px var(--ms-blue);
+  }
+  .scope-item--active-step > summary {
+    background: var(--ms-blue-lighter);
+  }
+
+  /* "Finish final determination" button row. */
+  .walkthrough-finish {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0 0.5rem;
+    padding: 1rem;
+    background: var(--ms-blue-lighter);
+    border: 1px dashed var(--ms-blue);
+    border-radius: var(--radius);
+    text-align: center;
+  }
+  .walkthrough-finish__intro {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--color-text);
+  }
+  .walkthrough-finish__btn {
+    font-size: 1rem;
+    padding: 0.6rem 1.4rem;
+  }
+
+  /* Reasoning summary — shown after the user clicks Finish. The visual
+     idiom (success / error tint) reflects the computed determination so
+     the user immediately knows the verdict before reading the why. */
+  .walkthrough-summary {
+    margin: 1rem 0 0.5rem;
+    padding: 0.9rem 1rem;
+    border-radius: var(--radius);
+    border-left: 4px solid var(--ms-blue);
+    background: var(--color-bg);
+  }
+  .walkthrough-summary--yes {
+    border-left-color: var(--color-success-fg);
+    background: var(--color-success-bg-subtle);
+  }
+  .walkthrough-summary--no {
+    border-left-color: var(--color-error-fg);
+    background: var(--color-error-bg-subtle);
+  }
+  .walkthrough-summary__verdict {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .walkthrough-summary__why {
+    margin: 0 0 0.5rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+  .walkthrough-summary__list {
+    margin: 0.2rem 0;
+    font-size: 0.88rem;
+    color: var(--color-text-soft);
+  }
+  .walkthrough-summary__cta {
+    margin: 0.6rem 0 0;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  /* ===== Trail nested sub-answers ============================== */
+  .trail__subanswers {
+    margin: 0.35rem 0 0.5rem 1.2rem;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .trail__suba {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.18rem 0.5rem;
+    font-size: 0.85rem;
+    border-radius: 4px;
+  }
+  .trail__suba--yes {
+    background: rgba(26, 127, 55, 0.06);
+  }
+  .trail__suba--no {
+    background: rgba(179, 42, 42, 0.06);
+  }
+  :root[data-theme="dark"] .trail__suba--yes {
+    background: rgba(74, 194, 107, 0.12);
+  }
+  :root[data-theme="dark"] .trail__suba--no {
+    background: rgba(255, 123, 123, 0.12);
+  }
+  .trail__suba-name {
+    color: var(--color-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .trail__suba-answer {
+    flex-shrink: 0;
+    font-weight: 600;
+    color: var(--color-text-soft);
+  }
+
+  .choices {
+    display: grid;
+    gap: 0.75rem;
+    margin: 1.5rem 0 0.5rem;
+  }
+  .choice {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    text-align: left;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    font: inherit;
+    color: var(--color-text);
+    transition:
+      border-color 0.15s,
+      background 0.15s,
+      transform 0.05s;
+  }
+  .choice:hover {
+    border-color: var(--ms-blue);
+    background: var(--ms-blue-lighter);
+    text-decoration: none;
+  }
+  .choice:active {
+    transform: translateY(1px);
+  }
+  :root[data-theme="dark"] .choice {
+    background: var(--color-bg-alt);
+  }
+  :root[data-theme="dark"] .choice:hover {
+    background: #25364b;
+    border-color: #3ea6ff;
+  }
+  .choice--warning {
+    border-left: 4px solid var(--color-warning);
+  }
+  .choice--ghost {
+    border-style: dashed;
+    color: var(--color-text-soft);
+  }
+  .choice__icon {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--ms-blue);
+    color: #fff;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--fs-sm);
+  }
+  .choice--warning .choice__icon {
+    background: var(--color-warning);
+  }
+  .choice--ghost .choice__icon {
+    background: var(--color-border-strong);
+    color: var(--color-text);
+  }
+  .choice__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+  .choice__label {
+    font-weight: 600;
+  }
+  .choice__sub {
+    color: var(--color-text-soft);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+  }
+
+  .info-card .card__title,
+  .result-card .card__title {
+    font-size: var(--fs-2xl);
+  }
+  .result-card {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  .result-card__bullets {
+    padding-left: 1.25rem;
+    margin: 1rem 0;
+  }
+  .result-card__bullets li {
+    margin-bottom: 0.4rem;
+  }
+  .result-card__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1.5rem 0 1rem;
+  }
+
+  .trail {
+    max-width: 900px;
+    margin: 1.5rem auto 0;
+    color: var(--color-text-soft);
+    font-size: var(--fs-sm);
+  }
+  .trail details {
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.5rem 1rem;
+  }
+  .trail summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .trail__list {
+    margin: 0.75rem 0 0;
+    padding-left: 1.5rem;
+  }
+  .trail__list li {
+    margin-bottom: 0.5rem;
+  }
+  .trail__q {
+    display: block;
+    color: var(--color-text);
+  }
+  .trail__a {
+    display: block;
+    color: var(--ms-blue);
+    font-weight: 600;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--color-text);
+    color: var(--color-bg);
+    padding: 0.6rem 1.1rem;
+    border-radius: var(--radius);
+    font-size: var(--fs-sm);
+    box-shadow: var(--shadow-modal);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.2s,
+      transform 0.2s;
+    z-index: 200;
+  }
+  .toast--visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>

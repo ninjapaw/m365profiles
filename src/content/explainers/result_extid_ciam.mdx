@@ -1,0 +1,50 @@
+---
+title: "Microsoft Entra External ID for customers (CIAM)"
+resultId: "result_extid_ciam"
+profile: "extid"
+summary: "Customer-facing apps with sign-up / sign-in / social IdPs. Separate product line from B2B."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because the scenario is a **customer-facing application**
+— end consumers signing up for your product, signing in with email or a
+social identity provider (Google, Facebook, Apple, Microsoft Account),
+managing their own profile and password. This is **CIAM**: Customer
+Identity and Access Management.
+
+**This is NOT B2B.** B2B = your business inviting partner / vendor
+employees from other Entra tenants. CIAM = end consumers, often
+unauthenticated until they hit your sign-up flow.
+
+**What External ID for customers includes:**
+
+- **Custom-branded sign-up and sign-in** pages with your logo, colors,
+  and copy.
+- **Social identity providers** out of the box (Google, Facebook, Apple,
+  Microsoft Account) plus generic OIDC for federation with other IdPs.
+- **Self-service password reset**, profile editing, account linking.
+- **User-attribute collection** at sign-up (custom claims, marketing
+  consent, etc.).
+- **Conditional Access** evaluated against customer sign-ins.
+
+**How it's billed:**
+
+- Separate **MAU billing meter** from B2B External ID — see the External
+  ID pricing page for current CIAM rates.
+- A customer counts as MAU only in months where they authenticate.
+
+> **Don't mix B2B partners and CIAM customers in the same tenant
+> "External Users" mental model.** They're separately licensed and
+> separately tracked. Partner employees invited via B2B count against the
+> B2B MAU meter; consumer customers signing up via CIAM count against the
+> CIAM MAU meter. Many apps need both — that's fine, just budget for both
+> meters.
+
+**This replaces Azure AD B2C for new tenants.** Existing Azure AD B2C
+tenants continue to operate, but new CIAM workloads should land on Entra
+External ID for customers — it's the forward-investment product line.
+
+**If you also need to issue verifiable credentials** to customers
+(e.g. a "verified buyer" credential), layer **Verified ID** on top —
+that's a separate per-credential billing meter.

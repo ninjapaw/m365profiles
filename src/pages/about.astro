@@ -1,0 +1,223 @@
+---
+import Base from "@layouts/Base.astro";
+import { APP_VERSION } from "@lib/version";
+import { BRAND } from "@lib/brand";
+import { GITHUB_URL, repoFileUrl, pageTitle } from "@lib/site";
+import { treeStats } from "@lib/tree";
+
+const { nodeCount, resultCount, choiceCount, questionCount, docCount } = treeStats();
+
+const title = pageTitle("About");
+const description =
+  "Methodology, sources, trademark notice, and how the M365 Profiles decision tree is built.";
+---
+
+<Base title={title} description={description} ogImageSlug="about">
+  <section class="section">
+    <div class="container container--prose">
+      <p class="eyebrow">About</p>
+      <h1>Methodology, sources &amp; honest limits</h1>
+
+      <div class="stat-row">
+        <div class="stat">
+          <span class="stat__num">{nodeCount}</span><span class="stat__label">tree nodes</span>
+        </div>
+        <div class="stat">
+          <span class="stat__num">{questionCount}</span><span class="stat__label">questions</span>
+        </div>
+        <div class="stat">
+          <span class="stat__num">{choiceCount}</span><span class="stat__label">choice screens</span
+          >
+        </div>
+        <div class="stat">
+          <span class="stat__num">{resultCount}</span><span class="stat__label"
+            >recommendations</span
+          >
+        </div>
+        <div class="stat">
+          <span class="stat__num">{docCount}</span><span class="stat__label">cited sources</span>
+        </div>
+        <div class="stat stat--version">
+          <span class="stat__num stat__num--mono">{APP_VERSION}</span><span class="stat__label"
+            >build version</span
+          >
+        </div>
+      </div>
+
+      <h2>What this is</h2>
+      <p>
+        M365 Profiles is an interactive decision tree that matches a Microsoft 365 identity profile
+        to the right license tier. It's a static Astro site — no backend, no accounts, no analytics,
+        no telemetry, no cookies. The full decision data lives in <a
+          href={repoFileUrl("src/data/tree.js")}
+          target="_blank"
+          rel="noopener"><code>src/data/tree.js</code></a
+        >
+        and every edge is automatically verified reachable by
+        <a href={repoFileUrl("scripts/validate-tree.js")} target="_blank" rel="noopener"
+          ><code>scripts/validate-tree.js</code></a
+        >.
+      </p>
+
+      <h2>What this is <em>not</em></h2>
+      <div class="callout callout--warn">
+        <p>
+          <strong>Not official Microsoft guidance.</strong> This is an independent community helper —
+          not a Microsoft product, not endorsed by Microsoft, and not a substitute for professional licensing
+          advice. Always verify SKUs and entitlements with your Microsoft account team or licensing partner.
+          The Microsoft Product Terms are the source of truth.
+        </p>
+      </div>
+
+      <h2>Methodology</h2>
+      <ol>
+        <li>
+          <strong>Source-first.</strong> Every question, recommendation, and edge case links to a Microsoft
+          Learn page or another primary source. If a rule isn't backed by a citation we can show you,
+          it doesn't ship.
+        </li>
+        <li>
+          <strong>Per-user vs role-gated.</strong> Most Microsoft admin portals enforce role-based access
+          control rather than per-user license assignment. The tree distinguishes between "the admin operating
+          the portal" (role-gated) and "the user being protected" (license-required). The few admin scenarios
+          where the admin's own account is the licensed party — PIM, Identity Governance configurer, Remote
+          Help helper, Teams Premium admin features, Copilot use, GSA client — are called out individually
+          with the Microsoft Learn citation.
+        </li>
+        <li>
+          <strong>Sovereign-cloud caveats.</strong> Government tenants are routed through a cloud picker
+          (GCC, GCC High, DoD IL5, Air-Gapped IL6) and every result is tagged with the feature-parity
+          caveat for that cloud.
+        </li>
+        <li>
+          <strong>One source of truth.</strong> The decision tree is one module. The interactive assessment,
+          the reference catalog, and the generated PDF all read from the same data — they cannot drift.
+        </li>
+      </ol>
+
+      <h2>AI &amp; build-time content</h2>
+      <p>
+        Some recommendation descriptions, examples, and plain-English explainers are authored with
+        AI assistance and then reviewed against the cited Microsoft Learn page. AI-assisted content
+        is treated the same as human-authored content — it ships only if it matches its citation. No
+        runtime AI calls are made; the site is fully static and your answers never leave your
+        browser.
+      </p>
+
+      <h2>Trademark &amp; brand notice</h2>
+      <p>
+        Microsoft, Microsoft 365, Azure, Entra, Defender, Purview, Intune, Teams, Copilot, and
+        related product names are trademarks of Microsoft Corporation. This site uses those names in
+        their <em>nominative descriptive sense</em> — to identify the products being discussed. The four
+        colored accent squares used as a favicon and navbar mark are not the Microsoft corporate logo
+        and are presented as a decorative echo, not as a brand mark. This project is not affiliated with,
+        sponsored by, or endorsed by Microsoft Corporation.
+      </p>
+
+      <h2>Security &amp; privacy</h2>
+      <ul>
+        <li><strong>No backend.</strong> The site is fully static, served from Azure Static Web Apps.</li>
+        <li>
+          <strong>No tracking.</strong> No analytics, no cookies, no fingerprinting, no third-party scripts
+          at runtime.
+        </li>
+        <li>
+          <strong>No accounts.</strong> Your assessment answers live in <code>sessionStorage</code> on
+          this device and are cleared on a new release or when you close the tab.
+        </li>
+        <li>
+          <strong>Defense-in-depth headers.</strong> CSP, Referrer-Policy, and Permissions-Policy are
+          set via <code>&lt;meta&gt;</code> tags. See <a
+            href={repoFileUrl("SECURITY.md")}
+            target="_blank"
+            rel="noopener">SECURITY.md</a
+          > for the vulnerability-reporting policy.
+        </li>
+      </ul>
+
+      <h2>Contributing</h2>
+      <p>
+        Issues and pull requests welcome at
+        <a href={GITHUB_URL} target="_blank" rel="noopener">github.com/{BRAND.repo}</a>. For PRs
+        that change licensing logic, please cite the Microsoft Learn page the rule comes from so
+        reviewers can verify it.
+      </p>
+
+      <h2>Acknowledgements</h2>
+      <ul>
+        <li>
+          UI patterns inspired by the <a
+            href="https://microsoft.github.io/zerotrustassessment/"
+            target="_blank"
+            rel="noopener">Microsoft Zero Trust Assessment</a
+          >.
+        </li>
+        <li>
+          License cross-references built on top of <a
+            href="https://m365maps.com/"
+            target="_blank"
+            rel="noopener">m365maps.com</a
+          > by Aaron Dinnage.
+        </li>
+        <li>
+          Built with <a href="https://astro.build/" target="_blank" rel="noopener">Astro</a> and <a
+            href="https://github.com/parallax/jsPDF"
+            target="_blank"
+            rel="noopener">jsPDF</a
+          >.
+        </li>
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .eyebrow {
+    text-transform: uppercase;
+    color: var(--ms-blue);
+    font-weight: 700;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.1em;
+    margin: 0 0 0.25rem;
+  }
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1.5rem 0 2.5rem;
+    padding: 1rem;
+    background: var(--color-bg-tint);
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+  }
+  .stat {
+    flex: 1 1 100px;
+    text-align: center;
+  }
+  .stat__num {
+    display: block;
+    font-size: var(--fs-2xl);
+    font-weight: 700;
+    color: var(--ms-blue);
+    line-height: 1;
+  }
+  .stat__num--mono {
+    font-size: var(--fs-md);
+    font-family: var(--font-mono);
+    word-break: break-all;
+  }
+  .stat__label {
+    display: block;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    letter-spacing: 0.06em;
+    margin-top: 0.25rem;
+  }
+  .stat--version {
+    min-width: 160px;
+  }
+  h2 {
+    margin-top: 2.5rem;
+  }
+</style>

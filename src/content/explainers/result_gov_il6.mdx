@@ -1,0 +1,52 @@
+---
+title: "Microsoft 365 Air-Gapped — IL6 / Top Secret classified workloads"
+resultId: "result_gov_il6"
+profile: "gov"
+summary: "Physically isolated cloud for classified workloads. Most SKUs gated. Engage Microsoft FedCiv directly."
+authored: "2026-05"
+aiAssisted: true
+---
+
+Microsoft 365 Air-Gapped is the **physically-isolated sovereign cloud**
+built for classified workloads at the Top Secret / IL6 level. It is
+**not** an upgrade tier of G5 — it is a separately-architected cloud with
+intentionally limited feature parity, and procurement happens through
+Microsoft directly.
+
+**What's different vs GCC / GCC High / DoD:**
+
+- The infrastructure is **physically separated** from all other Microsoft
+  clouds, including DoD IL5. No shared backbone.
+- Most premium features (Copilot, Defender XDR, Entra Suite, Verified ID,
+  Purview Premium, Teams Premium) either **lag significantly** behind
+  commercial / GCC High or are **unavailable**. Verify *every* SKU against
+  the Air-Gapped product page before assuming it works.
+- Cross-cloud collaboration to commercial / GCC / GCC High / DoD is
+  **heavily restricted by design** — there is no general-purpose B2B story.
+
+> **This SKU is not in standard price lists.** Pricing, eligibility, and
+> entitlements are negotiated directly with the Microsoft Federal Civilian
+> (FedCiv) account team. Standard CSP partners do not provision Air-Gapped
+> tenants. Engage Microsoft early — provisioning timelines are measured in
+> months, not days.
+
+**When this is the right answer:**
+
+- The workload is classified at a level that mandates Top Secret / IL6
+  infrastructure.
+- You have an authorization to operate (ATO) requirement that no other
+  cloud can satisfy.
+- Your account team has confirmed Microsoft's intake process and target
+  go-live for the tenant.
+
+**When this is NOT the right answer:**
+
+- Most "high security" Federal workloads land in **GCC High** or **DoD
+  IL5** (G5), not Air-Gapped. Don't over-shoot — the feature gap is real
+  and many workloads simply cannot run in Air-Gapped today.
+- Commercial-sensitive but unclassified data (FOUO, CUI Basic) belongs in
+  GCC or GCC High, not Air-Gapped.
+
+**Always verify:** the Air-Gapped service description and the Microsoft 365
+Government cross-cloud documentation. Treat any feature you saw demoed in
+commercial as **unavailable until proven otherwise** in this cloud.

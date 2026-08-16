@@ -1,0 +1,52 @@
+---
+title: "No user license required — service principal / managed identity"
+resultId: "result_service_principal"
+profile: "admin"
+summary: "Non-interactive identities don't consume per-user M365 licenses. Optional Workload Identities Premium for risk + CA."
+authored: "2026-05"
+aiAssisted: true
+---
+
+You landed here because the identity is **non-interactive** — a service
+principal, managed identity, or workload identity that no human signs in
+to. Microsoft licenses these separately from human users: **no per-user
+M365 license is required for the identity itself.**
+
+**Why workload identities aren't user-licensed:**
+
+- Per-user M365 service licenses (Exchange, Teams, SharePoint, Office)
+  are assigned to humans who consume those services.
+- A service principal calling Graph or a managed identity authenticating
+  to Azure SQL doesn't consume those user-facing services. It runs as an
+  application identity, separately billed.
+
+**Prefer managed identities over service principals with secrets.**
+Microsoft's guidance is consistent: managed identities for Azure resources
+eliminate stored credentials entirely. If the workload runs in Azure,
+managed identity is the default. Use a service principal only when the
+workload runs outside Azure or needs cross-tenant scope.
+
+> **Conditional Access for workload identities is a separate feature.**
+> User-targeted CA policies (`Users → All users`) typically exclude
+> service principals — they're scoped to user objects. To enforce CA on
+> workload identities (block from countries, require allowed sign-in
+> locations, etc.), use the dedicated **Conditional Access for workload
+> identities** policy type, which requires the **Workload Identities
+> Premium** SKU per workload identity in scope.
+
+**Workload Identities Premium adds:**
+
+- **Risk detection** on service principals (leaked credentials, anomalous
+  sign-in patterns).
+- **Conditional Access policies** scoped to workload identities.
+- **Access reviews** for service principal owners / role assignments.
+
+It's optional and per-identity, not per-user. License only the
+service principals where you actually need premium protection.
+
+**What's still required even without a user license:**
+
+- **Phishing-resistant credential rotation** — replace long-lived client
+  secrets with certificates, federated credentials, or managed identities.
+- **Owner accountability** — assign a human owner to every service
+  principal so it doesn't become orphaned at staff transitions.
