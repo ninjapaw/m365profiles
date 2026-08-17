@@ -249,10 +249,11 @@ tokens must not be shared between environments. Configure
 `dev.m365profiles.com` as an Azure Static Web Apps custom domain and point its
 DNS record at the development app before relying on the hostname.
 
-The hosted development target uses `NP-m365profiles-Dev-CentralUS` for both
-the resource group and Static Web App name, in `centralus`. Store its publish
-token as `AZURE_STATIC_WEB_APPS_API_TOKEN_DEV`; the `dev` branch workflow uses
-that secret and never uses the production publish token.
+The hosted development target shares the `NP-m365profiles-CentralUS` resource
+group with production and uses the `NP-m365profiles-Dev-CentralUS` Static Web
+App name in `centralus`. Store its publish token as
+`AZURE_STATIC_WEB_APPS_API_TOKEN_DEV`; the `dev` branch workflow uses that
+secret and never uses the production publish token.
 
 `staticwebapp.config.json` configures the Azure Static Web Apps navigation fallback, 404 handling, MIME type, and HTTP security headers. `PUBLIC_SITE_BASE` is always `/` for this target.
 
