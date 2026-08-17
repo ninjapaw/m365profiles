@@ -65,6 +65,10 @@ gh auth status >/dev/null
 repository="${repository:-$(gh repo view --json nameWithOwner --jq .nameWithOwner)}"
 github_environment="deployment-${environment_name}"
 application_name="m365profiles-${environment_name}-infrastructure-github"
+publish_token_secret="AZURE_STATIC_WEB_APPS_API_TOKEN"
+if [[ "$environment_name" == "development" ]]; then
+  publish_token_secret="AZURE_STATIC_WEB_APPS_API_TOKEN_DEV"
+fi
 
 az provider register --namespace Microsoft.Web --wait
 az group create --name "$resource_group" --location "$location" --output none
@@ -115,8 +119,8 @@ gh variable set AZURE_SITE_SKU --env "$github_environment" --repo "$repository" 
 
 if az staticwebapp show --resource-group "$resource_group" --name "$site_name" --output none 2>/dev/null; then
   az staticwebapp secrets list --resource-group "$resource_group" --name "$site_name" --query properties.apiKey --output tsv |
-    gh secret set AZURE_STATIC_WEB_APPS_API_TOKEN --env "$github_environment" --repo "$repository"
+    gh secret set "$publish_token_secret" --env "$github_environment" --repo "$repository"
   printf 'Bootstrap complete. The Static Web Apps deployment token is configured in %s.\n' "$github_environment"
 else
-  printf 'Bootstrap complete. Run the infrastructure workflow, then rerun this command to set AZURE_STATIC_WEB_APPS_API_TOKEN.\n'
+  printf 'Bootstrap complete. Run the infrastructure workflow, then rerun this command to set %s.\n' "$publish_token_secret"
 fi

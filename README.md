@@ -243,10 +243,10 @@ Create protected `deployment-development` and `deployment-production` GitHub Env
 Pushes to `main` deploy to `deployment-production` and use `https://m365profiles.com`.
 Pushes to `dev` deploy to `deployment-development` and use
 `https://dev.m365profiles.com`. The development environment needs its own
-`AZURE_STATIC_WEB_APPS_API_TOKEN` for the development Static Web App; tokens
-must not be shared between environments. Configure `dev.m365profiles.com` as
-an Azure Static Web Apps custom domain and point its DNS record at the
-development app before relying on the hostname.
+`AZURE_STATIC_WEB_APPS_API_TOKEN_DEV` for the development Static Web App;
+tokens must not be shared between environments. Configure
+`dev.m365profiles.com` as an Azure Static Web Apps custom domain and point its
+DNS record at the development app before relying on the hostname.
 
 The hosted development target uses `NP-m365profiles-Dev-CentralUS` for both
 the resource group and Static Web App name, in `centralus`. Store its publish
