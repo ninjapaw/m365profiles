@@ -233,8 +233,7 @@ Create protected `deployment-development` and `deployment-production` GitHub Env
 | `AZURE_CLIENT_ID` | Environment secret | *(OIDC app ID)* | Infrastructure deployment identity. No client secret is used. |
 | `AZURE_TENANT_ID` | Environment secret | *(tenant ID)* | Tenant containing the OIDC application. |
 | `AZURE_SUBSCRIPTION_ID` | Environment secret | *(subscription ID)* | Subscription that owns the target resource group. |
-| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Environment secret | *(Production Static Web App deployment token)* | Used by `main` deployments. Rotate immediately if exposed. |
-| `AZURE_STATIC_WEB_APPS_API_TOKEN_DEV` | Repository or environment secret | *(Development Static Web App deployment token)* | Used by `dev` deployments. Keep separate from production. Rotate immediately if exposed. |
+| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Environment secret | *(Static Web App deployment token)* | Required to publish. Set the development app token in `deployment-development` and the production app token in `deployment-production`. Rotate immediately if exposed. |
 | `AZURE_LOCATION` | Environment variable | `eastus2` | Resource-group and Static Web App metadata region. |
 | `AZURE_RESOURCE_GROUP` | Environment variable | `m365profiles-production` | Resource group owned by this Environment. |
 | `AZURE_STATIC_WEB_APP_NAME` | Environment variable | `m365profiles-production-site` | Globally unique Static Web Apps resource name. |
@@ -243,17 +242,16 @@ Create protected `deployment-development` and `deployment-production` GitHub Env
 
 Pushes to `main` deploy to `deployment-production` and use `https://m365profiles.com`.
 Pushes to `dev` deploy to `deployment-development` and use
-`https://dev.m365profiles.com`. The development environment needs its own
-`AZURE_STATIC_WEB_APPS_API_TOKEN_DEV` for the development Static Web App;
-tokens must not be shared between environments. Configure
-`dev.m365profiles.com` as an Azure Static Web Apps custom domain and point its
-DNS record at the development app before relying on the hostname.
+`https://dev.m365profiles.com`. Both environments use the same variable and
+secret names, but their values are isolated by GitHub Environment: set each
+environment's own `AZURE_STATIC_WEB_APPS_API_TOKEN` and do not share tokens.
+Configure `dev.m365profiles.com` as an Azure Static Web Apps custom domain and
+point its DNS record at the development app before relying on the hostname.
 
 The hosted development target shares the `NP-m365profiles-CentralUS` resource
 group with production and uses the `NP-m365profiles-Dev-CentralUS` Static Web
-App name in `centralus`. Store its publish token as
-`AZURE_STATIC_WEB_APPS_API_TOKEN_DEV`; the `dev` branch workflow uses that
-secret and never uses the production publish token.
+App name in `centralus`. The `dev` workflow resolves all values from
+`deployment-development`; it never reads `deployment-production` secrets.
 
 `staticwebapp.config.json` configures the Azure Static Web Apps navigation fallback, 404 handling, MIME type, and HTTP security headers. `PUBLIC_SITE_BASE` is always `/` for this target.
 
