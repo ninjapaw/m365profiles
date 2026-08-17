@@ -3,6 +3,7 @@ import Base from "@layouts/Base.astro";
 import { pageTitle } from "@lib/site";
 import { withBase } from "@lib/paths";
 import { TREE, START_NODE_ID, TOTAL_MAJOR_STEPS } from "@lib/tree";
+import { APP_VERSION } from "@lib/version";
 
 // Serialize tree into a JSON island for the client controller.
 const treeConfig = {
@@ -20,6 +21,10 @@ const description =
 <Base title={title} description={description} pageClass="page-assessment" ogImageSlug="assessment">
   <section class="assessment-intro">
     <div class="container">
+      <div class="assessment-report__masthead" aria-label="Assessment report details">
+        <span>Assessment report</span>
+        <span>{APP_VERSION}</span>
+      </div>
       <p class="eyebrow">Interactive assessment</p>
       <h1>Find the right Microsoft 365 license</h1>
       <p class="lede">
@@ -27,6 +32,20 @@ const description =
         screen cites Microsoft Learn and other primary sources so you can verify each step. Your
         answers stay on this device — no accounts, no tracking.
       </p>
+      <dl class="assessment-report__scope">
+        <div>
+          <dt>Purpose</dt>
+          <dd>Planning support for a Microsoft 365 licensing conversation.</dd>
+        </div>
+        <div>
+          <dt>Evidence</dt>
+          <dd>Source links and an answer trail accompany each recommendation.</dd>
+        </div>
+        <div>
+          <dt>Scope</dt>
+          <dd>Independent community guidance, not an eligibility determination.</dd>
+        </div>
+      </dl>
     </div>
   </section>
 
@@ -74,6 +93,58 @@ const description =
     max-width: 720px;
     color: var(--color-text-soft);
     margin: 0;
+  }
+  .assessment-report__masthead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 960px;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--ms-blue);
+    color: var(--color-text-muted);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .assessment-report__masthead span:last-child {
+    font-family: var(--font-mono);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .assessment-report__scope {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    max-width: 960px;
+    margin: 1.5rem 0 0;
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .assessment-report__scope div {
+    min-width: 0;
+  }
+  .assessment-report__scope dt {
+    margin: 0 0 0.25rem;
+    color: var(--color-text-muted);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .assessment-report__scope dd {
+    margin: 0;
+    color: var(--color-text-soft);
+    font-size: var(--fs-sm);
+    line-height: 1.45;
+  }
+  @media (max-width: 640px) {
+    .assessment-report__scope {
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+    }
   }
   .assessment-shell {
     padding: 2rem 0 4rem;

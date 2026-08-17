@@ -1,6 +1,6 @@
 // Shared link list for nav, footer, sitemap helpers.
 import type { APIContext } from "astro";
-import { GITHUB_URL, SITE_BASE_FALLBACK } from "@lib/site";
+import { GITHUB_URL, repoFileUrl, SITE_BASE_FALLBACK } from "@lib/site";
 import { CONFIG } from "./config.js";
 
 export type NavLink = { href: string; label: string; external?: boolean };
@@ -28,8 +28,9 @@ export function repoLinks(): NavLink[] {
   return [
     { href: GITHUB_URL, label: "GitHub", external: true },
     { href: `${GITHUB_URL}/issues`, label: "Issues", external: true },
-    { href: `${GITHUB_URL}/blob/main/LICENSE`, label: "MIT License", external: true },
-    { href: `${GITHUB_URL}/blob/main/SECURITY.md`, label: "Security policy", external: true },
+    { href: repoFileUrl("LICENSE"), label: "MIT License", external: true },
+    { href: repoFileUrl("SECURITY.md"), label: "Security policy", external: true },
+    { href: repoFileUrl("CONTRIBUTING.md"), label: "Contributing", external: true },
   ];
 }
 

@@ -34,10 +34,10 @@ try {
     <div class="footer__col">
       <h4>{BRAND.name}</h4>
       <p>
-        An independent community helper for Microsoft 365 licensing decisions. Built with Astro,
-        MIT-licensed.
+        An independent community project for Microsoft 365 licensing planning. It provides source-linked
+        recommendations, not product entitlement or purchasing advice.
       </p>
-      <p><strong>Not affiliated with or endorsed by Microsoft Corporation.</strong></p>
+      <p><strong>Not affiliated with, sponsored by, or endorsed by Microsoft Corporation.</strong></p>
     </div>
     <div class="footer__col">
       <h4>Site</h4>
@@ -81,23 +81,21 @@ try {
     </div>
   </div>
   <div class="container footer__bottom">
-    <span
-      >&copy; {year}
-      {BRAND.owner} · MIT Licensed · <span class="footer__version">{APP_VERSION}</span>{
+    <p class="footer__legal">
+      &copy; {year} {BRAND.owner}. Source code is released under the MIT License.
+      <span class="footer__version">{APP_VERSION}</span>
+      {
         buildDateLabel && (
-          <>
-            {" · "}
-            <span class="footer__build-date">
-              Updated <time datetime={buildDateIso}>{buildDateLabel}</time>
-            </span>
-          </>
+          <span class="footer__build-date">
+            · Updated <time datetime={buildDateIso}>{buildDateLabel}</time>
+          </span>
         )
-      }</span
-    >
-    <span
-      >Microsoft, Microsoft 365, Azure, Entra, Defender, Purview, Intune, Teams, Copilot are
-      trademarks of Microsoft Corporation. Used in nominative descriptive sense only.</span
-    >
+      }
+    </p>
+    <p class="footer__notice">
+      Microsoft, Microsoft 365, Azure, Entra, Defender, Purview, Intune, Teams, and Copilot are
+      trademarks of Microsoft Corporation. Names are used only to identify the products discussed.
+    </p>
   </div>
 </footer>
 
@@ -145,6 +143,10 @@ try {
     justify-content: space-between;
     font-size: var(--fs-xs);
     color: rgba(255, 255, 255, 0.55);
+  }
+  .footer__bottom p {
+    margin: 0;
+    max-width: 66ch;
   }
   .footer__version {
     font-family: var(--font-mono);

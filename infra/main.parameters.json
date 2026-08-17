@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "siteName": {
+      "value": "${AZURE_STATIC_WEB_APP_NAME}"
+    },
+    "environmentName": {
+      "value": "${AZURE_ENVIRONMENT}"
+    },
+    "siteSkuName": {
+      "value": "${AZURE_SITE_SKU=Free}"
+    },
+    "tags": {
+      "value": {
+        "application": "m365profiles",
+        "component": "web"
+      }
+    }
+  }
+}

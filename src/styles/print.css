@@ -19,6 +19,9 @@
   .btn {
     display: none !important;
   }
+  .result-card__report-head {
+    display: flex !important;
+  }
   body {
     background: #fff !important;
     color: #000 !important;

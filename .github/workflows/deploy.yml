@@ -6,9 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
+  contents: read
 
 concurrency:
   group: deploy-production
@@ -18,10 +16,12 @@ jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     environment: deployment-production
+    outputs:
+      app_version: ${{ steps.version.outputs.app_version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
           cache: "npm"
@@ -31,18 +31,26 @@ jobs:
       - run: npm run validate-tree
 
       - name: Set build version
+        id: version
         run: |
-          echo "PUBLIC_APP_VERSION=v$(date -u +'%Y.%m.%d')-${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
+          app_version="v$(date -u +'%Y.%m.%d')-${GITHUB_RUN_NUMBER}"
+          echo "PUBLIC_APP_VERSION=$app_version" >> "$GITHUB_ENV"
+          echo "app_version=$app_version" >> "$GITHUB_OUTPUT"
           echo "PUBLIC_BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
 
       - name: Build
         env:
-          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+          PUBLIC_SITE_URL: ${{ vars.AZURE_PUBLIC_SITE_URL || vars.PUBLIC_SITE_URL }}
           PUBLIC_SITE_BASE: "/"
         run: npm run build
 
+      - name: Verify Static Web Apps deployment token
+        env:
+          AZURE_STATIC_WEB_APPS_API_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+        run: ': "${AZURE_STATIC_WEB_APPS_API_TOKEN:?Set this secret after provisioning the Static Web App}"'
+
       - name: Deploy to Azure Static Web Apps
-        uses: Azure/static-web-apps-deploy@v1
+        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9 # v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -51,21 +59,18 @@ jobs:
           output_location: ""
           skip_app_build: true
 
-      - name: Tag release
-        if: ${{ !contains(github.event.head_commit.message, '[skip release]') }}
+  release:
+    if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip release]') }}
+    needs: build_and_deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create release
         run: |
-          gh release create "${PUBLIC_APP_VERSION}" \
-            --title "${PUBLIC_APP_VERSION}" \
+          gh release create "${APP_VERSION}" \
+            --title "${APP_VERSION}" \
             --generate-notes || true
         env:
+          APP_VERSION: ${{ needs.build_and_deploy.outputs.app_version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  close_pull_request:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Close pull request
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          action: "close"

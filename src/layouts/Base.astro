@@ -8,7 +8,7 @@ import Footer from "@components/Footer.astro";
 import Disclaimer from "@components/Disclaimer.astro";
 import { APP_VERSION, BUILD_DATE } from "@lib/version";
 import { BRAND } from "@lib/brand";
-import { HOME_TITLE, STORAGE_KEYS } from "@lib/site";
+import { HOME_TITLE } from "@lib/site";
 import {
   baseUrl,
   canonicalUrl,
@@ -78,7 +78,6 @@ const ogImagePath = ogImageProp
 // og:image must be absolute per the Open Graph spec.
 const siteOrigin = makeSiteOrigin(Astro.site);
 const ogImageUrl = ogImagePath.startsWith("http") ? ogImagePath : `${siteOrigin}${ogImagePath}`;
-const versionUrl = `${baseTrim}/version.json`;
 const manifestUrl = `${baseTrim}/manifest.webmanifest`;
 
 const homeUrl = makeHomeUrl(Astro.site);
@@ -253,87 +252,9 @@ const jsonLd = { "@context": "https://schema.org", "@graph": jsonLdGraph };
 
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
-    <script is:inline define:vars={{ themeKey: STORAGE_KEYS.theme }}>
-      (function () {
-        var t = null;
-        try {
-          t = localStorage.getItem(themeKey);
-        } catch (_) {
-          /* ignore */
-        }
-        if (t !== "dark" && t !== "light") {
-          t =
-            window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light";
-        }
-        document.documentElement.setAttribute("data-theme", t);
-      })();
-    </script>
-
-    <script is:inline define:vars={{ versionUrl, APP_VERSION, knownKey: STORAGE_KEYS.knownVersion }}
-    >
-      (function () {
-        // Strip the one-shot cache-buster left behind by a forced reload
-        // (see below). Keeps the URL clean for bookmarks / shares once the
-        // browser is on the fresh build.
-        try {
-          var here = new URL(location.href);
-          if (here.searchParams.get("_v") === APP_VERSION) {
-            here.searchParams.delete("_v");
-            history.replaceState(null, "", here.toString());
-          }
-        } catch (_) {
-          /* ignore */
-        }
-
-        if (!("fetch" in window)) return;
-        try {
-          // version.json is tiny; ?t= + no-store guarantees a fresh response
-          // even if a CDN ignored our Cache-Control header.
-          fetch(versionUrl + "?t=" + Date.now(), { cache: "no-store" })
-            .then(function (r) {
-              return r.ok ? r.json() : null;
-            })
-            .then(function (data) {
-              if (!data || !data.version) return;
-              var seen = null;
-              try {
-                seen = localStorage.getItem(knownKey);
-              } catch (_) {}
-              if (seen && seen !== data.version && data.version !== APP_VERSION) {
-                // New deploy detected but this page was rendered from the
-                // previous build. Clear per-version sessionStorage, then
-                // navigate to a unique URL so the browser cannot serve the
-                // stale HTML from disk cache. location.reload() alone is
-                // not guaranteed to revalidate within the HTML max-age
-                // window on every browser.
-                try {
-                  sessionStorage.clear();
-                } catch (_) {}
-                try {
-                  localStorage.setItem(knownKey, data.version);
-                } catch (_) {}
-                try {
-                  var next = new URL(location.href);
-                  next.searchParams.set("_v", data.version);
-                  location.replace(next.toString());
-                } catch (_) {
-                  location.reload();
-                }
-                return;
-              }
-              try {
-                localStorage.setItem(knownKey, data.version);
-              } catch (_) {}
-            })
-            .catch(function () {
-              /* offline / blocked — ignore */
-            });
-        } catch (_) {
-          /* ignore */
-        }
-      })();
+    <script>
+      import "@client/theme.ts";
+      import "@client/version-check.ts";
     </script>
   </head>
   <body class={pageClass}>

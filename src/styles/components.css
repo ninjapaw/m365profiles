@@ -126,6 +126,37 @@
   margin: 0 0 1rem;
 }
 
+.result-card__report-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: -0.25rem 0 1rem;
+  padding: 0 0 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.result-card__report-head span:last-child {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-align: right;
+  text-transform: none;
+}
+@media (max-width: 540px) {
+  .result-card__report-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .result-card__report-head span:last-child {
+    text-align: left;
+  }
+}
+
 /* Badges */
 .badge {
   display: inline-block;

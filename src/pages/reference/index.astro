@@ -338,32 +338,6 @@ const description =
   }
 </style>
 
-<script is:inline>
-  (function () {
-    const input = document.querySelector(".ref-search");
-    const count = document.querySelector(".ref-search__count");
-    if (!input || !count) return;
-    const cards = Array.from(document.querySelectorAll(".ref-card[data-search]"));
-    const sections = Array.from(document.querySelectorAll(".ref-section"));
-    const total = cards.length;
-    function render() {
-      const q = input.value.trim().toLowerCase();
-      let visible = 0;
-      for (const card of cards) {
-        const hay = card.getAttribute("data-search") || "";
-        const match = q === "" || hay.includes(q);
-        card.style.display = match ? "" : "none";
-        if (match) visible++;
-      }
-      // Hide sections that have zero visible cards
-      for (const section of sections) {
-        const sectionCards = section.querySelectorAll(".ref-card[data-search]");
-        const anyVisible = Array.from(sectionCards).some((c) => c.style.display !== "none");
-        section.toggleAttribute("hidden", sectionCards.length > 0 && !anyVisible);
-      }
-      count.textContent = q ? `${visible} of ${total} match` : `${total} results`;
-    }
-    input.addEventListener("input", render);
-    render();
-  })();
+<script>
+  import "@client/reference-search.ts";
 </script>

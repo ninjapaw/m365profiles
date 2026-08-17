@@ -1,0 +1,80 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Provision an Azure Static Web App for M365 Profiles."
+  },
+  "parameters": {
+    "siteName": {
+      "type": "string",
+      "metadata": {
+        "description": "Globally unique Azure Static Web App name."
+      },
+      "minLength": 2,
+      "maxLength": 40
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus2",
+      "metadata": {
+        "description": "Azure region for the Static Web App resource metadata."
+      }
+    },
+    "environmentName": {
+      "type": "string",
+      "defaultValue": "development",
+      "metadata": {
+        "description": "Deployment environment used for resource tags."
+      }
+    },
+    "siteSkuName": {
+      "type": "string",
+      "defaultValue": "Free",
+      "allowedValues": ["Free", "Standard"],
+      "metadata": {
+        "description": "Static Web Apps plan. Free is recommended until Standard-only features are required."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Additional tags applied to the Static Web App."
+      }
+    }
+  },
+  "variables": {
+    "resourceTags": "[union(createObject('application', 'm365profiles', 'component', 'web', 'environment', parameters('environmentName'), 'managedBy', 'bicep', 'azd-service-name', 'web'), parameters('tags'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/staticSites",
+      "apiVersion": "2025-03-01",
+      "name": "[parameters('siteName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('resourceTags')]",
+      "sku": {
+        "name": "[parameters('siteSkuName')]",
+        "tier": "[parameters('siteSkuName')]"
+      },
+      "properties": {
+        "allowConfigFileUpdates": true,
+        "stagingEnvironmentPolicy": "Enabled"
+      }
+    }
+  ],
+  "outputs": {
+    "resourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/staticSites', parameters('siteName'))]"
+    },
+    "defaultHostname": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/staticSites', parameters('siteName')), '2025-03-01').defaultHostname]"
+    },
+    "siteUrl": {
+      "type": "string",
+      "value": "[format('https://{0}', reference(resourceId('Microsoft.Web/staticSites', parameters('siteName')), '2025-03-01').defaultHostname)]"
+    }
+  }
+}

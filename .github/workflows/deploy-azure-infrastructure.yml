@@ -1,0 +1,92 @@
+name: Validate and Deploy Azure Infrastructure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/deploy-azure-infrastructure.yml
+      - infra/**
+      - azure.yaml
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/deploy-azure-infrastructure.yml
+      - infra/**
+      - azure.yaml
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub Environment and Azure naming scope
+        required: true
+        default: development
+        type: choice
+        options: [development, production]
+      operation:
+        description: Preview changes or provision the Static Web App
+        required: true
+        default: what-if
+        type: choice
+        options: [what-if, deploy]
+      site-sku:
+        description: Static Web Apps plan
+        required: true
+        default: Free
+        type: choice
+        options: [Free, Standard]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: azure-infrastructure-${{ inputs.environment || 'validation' }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Compile Bicep
+        run: |
+          az bicep build --file infra/main.bicep
+          az bicep build --file infra/azure/site/main.bicep
+          az bicep build-params --file infra/azure/site/main.bicepparam
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: deployment-${{ inputs.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      AZURE_STATIC_WEB_APP_NAME: ${{ vars.AZURE_STATIC_WEB_APP_NAME }}
+      AZURE_PUBLIC_SITE_URL: ${{ vars.AZURE_PUBLIC_SITE_URL }}
+      AZURE_SITE_SKU: ${{ inputs.site-sku }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: Validate Environment configuration
+        run: bash infra/azure/validate-environment.sh
+      - name: Sign in to Azure
+        uses: azure/login@8216e11d8cd9b42fe925c852af8e76311ff067ac # v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Verify resource group
+        run: |
+          test "$(az group exists --name "$AZURE_RESOURCE_GROUP")" = true
+      - name: Preview or deploy Static Web App
+        run: |
+          command_name="${{ inputs.operation }}"
+          if [[ "$command_name" == deploy ]]; then command_name=create; fi
+          az deployment group "$command_name" \
+            --name "m365profiles-site-${GITHUB_RUN_NUMBER}" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --template-file infra/main.bicep \
+            --parameters location="$AZURE_LOCATION" siteName="$AZURE_STATIC_WEB_APP_NAME" environmentName="${{ inputs.environment }}" siteSkuName="$AZURE_SITE_SKU"

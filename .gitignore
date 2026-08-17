@@ -18,6 +18,10 @@ yarn-error.log
 dist/
 .astro/
 
+# Azure Developer CLI local environment state
+.azure/*
+!.azure/deployment-plan.md
+
 # OS / editor noise
 .DS_Store
 Thumbs.db

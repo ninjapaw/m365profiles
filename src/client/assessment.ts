@@ -557,6 +557,12 @@ class Assessment {
     return h(
       "section",
       { class: "card result-card", "data-result-id": this.state.currentId },
+      h(
+        "div",
+        { class: "result-card__report-head" },
+        h("span", null, "M365 Profiles assessment report"),
+        h("span", null, "Independent community guidance")
+      ),
       when(node.badge, (b) =>
         h("span", { class: `badge ${node.badgeClass ?? "badge-success"}` }, escapeHTML(b))
       ),
@@ -586,14 +592,14 @@ class Assessment {
         h(
           "button",
           { type: "button", class: "btn btn-primary", "data-pdf": true },
-          "📄 Download PDF handout"
+          "Download PDF report"
         ),
         h(
           "button",
           { type: "button", class: "btn btn-secondary", "data-copy": true },
-          "📋 Copy summary"
+          "Copy report summary"
         ),
-        h("button", { type: "button", class: "btn btn-secondary", "data-print": true }, "🖨️ Print"),
+        h("button", { type: "button", class: "btn btn-secondary", "data-print": true }, "Print report"),
         h(
           "button",
           { type: "button", class: "btn btn-ghost", "data-restart": true },
@@ -2495,7 +2501,7 @@ class Assessment {
           };
         }),
       });
-      this.toast("PDF downloaded.");
+      this.toast("PDF report downloaded.");
     } catch (err) {
       console.error(err);
       this.toast("PDF failed. Try Print instead.");

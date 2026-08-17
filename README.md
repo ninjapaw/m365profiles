@@ -202,19 +202,46 @@ release as soon as they revisit the tab.
 
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
+| [`deploy-azure-infrastructure.yml`](.github/workflows/deploy-azure-infrastructure.yml) | IaC changes, PR, manual | Compiles Bicep. A manual run performs an OIDC-authenticated `what-if` or deploys the Static Web App. |
 | [`deploy.yml`](.github/workflows/deploy.yml) | push to `main`, manual | Validate tree → build → publish to Azure Static Web Apps → tag CalVer release. Add `[skip release]` to skip tagging. |
 | [`lint.yml`](.github/workflows/lint.yml) | push + PR to `main` | Build + tree validation, typecheck, markdownlint, link check, format check. |
 
-The site is fully static (no API routes), so it deploys to **Azure Static Web Apps Free** with no Azure Functions app required. Create a `deployment-production` GitHub Environment with:
+The site is fully static (no API routes), so it deploys to **Azure Static Web Apps Free** with no Azure Functions app required. `azure.yaml` and [`infra/`](infra/) make the resource reproducible through Bicep and Azure Developer CLI. The resource is kept separate from the static publish step: Bicep creates the Static Web App, while the deployment workflow publishes the verified Astro `dist/` output.
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fninjapaw%2Fm365profiles%2Fmain%2Finfra%2Fazure%2Fsite%2Fazuredeploy.json)
+
+The button provisions only the Static Web App resource. For repeatable environments and GitHub Actions deployment, use the bootstrap script instead. It creates or reuses an Entra application, configures GitHub Environment OIDC trust, scopes `Contributor` to the target resource group, and writes non-secret GitHub Environment variables:
+
+```bash
+az login
+gh auth login
+bash infra/azure/bootstrap.sh \
+  --environment production \
+  --subscription <approved-subscription-id> \
+  --resource-group m365profiles-production \
+  --site-name <globally-unique-site-name> \
+  --public-site-url https://m365profiles.com
+```
+
+The script refuses the subscription named `MCPP Subscription - DO NOT USE`. Run **Validate and Deploy Azure Infrastructure** with `operation: deploy` and `environment: production`; then rerun the bootstrap command after the site exists so it can set the Static Web Apps publish token.
+
+Create protected `deployment-development` and `deployment-production` GitHub Environments. The bootstrap script configures these values; they can also be configured manually:
 
 | Name | Type | Example | Notes |
 | --- | --- | --- | --- |
-| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Environment secret | *(from the Static Web App's deployment token)* | Long-lived Static Web Apps deployment token. Rotate immediately if exposed. |
-| `PUBLIC_SITE_URL` | Environment variable | `https://m365profiles.com` | Canonical URL embedded into the static build. |
+| `AZURE_CLIENT_ID` | Environment secret | *(OIDC app ID)* | Infrastructure deployment identity. No client secret is used. |
+| `AZURE_TENANT_ID` | Environment secret | *(tenant ID)* | Tenant containing the OIDC application. |
+| `AZURE_SUBSCRIPTION_ID` | Environment secret | *(subscription ID)* | Subscription that owns the target resource group. |
+| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Environment secret | *(Static Web App deployment token)* | Required only to publish the site. Rotate immediately if exposed. |
+| `AZURE_LOCATION` | Environment variable | `eastus2` | Resource-group and Static Web App metadata region. |
+| `AZURE_RESOURCE_GROUP` | Environment variable | `m365profiles-production` | Resource group owned by this Environment. |
+| `AZURE_STATIC_WEB_APP_NAME` | Environment variable | `m365profiles-production-site` | Globally unique Static Web Apps resource name. |
+| `AZURE_PUBLIC_SITE_URL` | Environment variable | `https://m365profiles.com` | Canonical URL embedded into the Astro build. |
+| `AZURE_SITE_SKU` | Environment variable | `Free` | Use `Standard` only for a required plan feature. |
 
-`staticwebapp.config.json` in the repo root configures the SPA-style navigation fallback and 404 handling for Azure Static Web Apps; `PUBLIC_SITE_BASE` is always `/` for this target.
+`staticwebapp.config.json` configures the Azure Static Web Apps navigation fallback, 404 handling, MIME type, and HTTP security headers. `PUBLIC_SITE_BASE` is always `/` for this target.
 
-**Custom domain:** add the domain under the Static Web App's **Custom domains** blade and either set the `PUBLIC_SITE_URL` Actions variable or edit `CONFIG.origin`.
+**Custom domain:** add the domain under the Static Web App's **Custom domains** blade, then set `AZURE_PUBLIC_SITE_URL` in the matching GitHub Environment before publishing the next build.
 
 ## Project layout
 
@@ -237,7 +264,9 @@ src/
   styles/              Tokens, base, components, print
   content/             MDX explainers keyed to result ids
 public/                Optional static assets
-.github/               Workflows (deploy, lint)
+.github/               Workflows (infrastructure, deploy, lint)
+infra/                 Bicep, Deploy to Azure template, and OIDC bootstrap
+.azure/deployment-plan.md  Azure architecture and deployment record
 ```
 
 ## Keyboard shortcuts (assessment)
@@ -255,6 +284,12 @@ public/                Optional static assets
 Static site. No backend, no telemetry, no cookies. Defense-in-depth `<meta>`
 headers (CSP, Referrer-Policy, Permissions-Policy). Report vulnerabilities
 privately — see [`SECURITY.md`](SECURITY.md).
+
+## Contributing
+
+Contributions that improve cited, source-grounded licensing guidance are
+welcome. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening an issue or
+pull request.
 
 ## Trademark notice
 
