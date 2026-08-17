@@ -40,7 +40,7 @@ jobs:
 
       - name: Build
         env:
-          PUBLIC_SITE_URL: ${{ vars.AZURE_PUBLIC_SITE_URL || vars.PUBLIC_SITE_URL }}
+          PUBLIC_SITE_URL: ${{ vars.AZURE_PUBLIC_SITE_URL || vars.PUBLIC_SITE_URL || 'https://m365profiles.com' }}
           PUBLIC_SITE_BASE: "/"
         run: npm run build
 
