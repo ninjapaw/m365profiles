@@ -203,7 +203,7 @@ release as soon as they revisit the tab.
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
 | [`deploy-azure-infrastructure.yml`](.github/workflows/deploy-azure-infrastructure.yml) | IaC changes, PR, manual | Compiles Bicep. A manual run performs an OIDC-authenticated `what-if` or deploys the Static Web App. |
-| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main`, manual | Validate tree → build → publish to Azure Static Web Apps → tag CalVer release. Add `[skip release]` to skip tagging. |
+| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main` or `dev`, manual | Validate tree → build → publish to the matching Azure Static Web Apps environment → tag CalVer release. Add `[skip release]` to skip tagging. |
 | [`lint.yml`](.github/workflows/lint.yml) | push + PR to `main` | Build + tree validation, typecheck, markdownlint, link check, format check. |
 
 The site is fully static (no API routes), so it deploys to **Azure Static Web Apps Free** with no Azure Functions app required. `azure.yaml` and [`infra/`](infra/) make the resource reproducible through Bicep and Azure Developer CLI. The resource is kept separate from the static publish step: Bicep creates the Static Web App, while the deployment workflow publishes the verified Astro `dist/` output.
@@ -232,12 +232,26 @@ Create protected `deployment-development` and `deployment-production` GitHub Env
 | `AZURE_CLIENT_ID` | Environment secret | *(OIDC app ID)* | Infrastructure deployment identity. No client secret is used. |
 | `AZURE_TENANT_ID` | Environment secret | *(tenant ID)* | Tenant containing the OIDC application. |
 | `AZURE_SUBSCRIPTION_ID` | Environment secret | *(subscription ID)* | Subscription that owns the target resource group. |
-| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Environment secret | *(Static Web App deployment token)* | Required only to publish the site. Rotate immediately if exposed. |
+| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Environment secret | *(Production Static Web App deployment token)* | Used by `main` deployments. Rotate immediately if exposed. |
+| `AZURE_STATIC_WEB_APPS_API_TOKEN_DEV` | Repository or environment secret | *(Development Static Web App deployment token)* | Used by `dev` deployments. Keep separate from production. Rotate immediately if exposed. |
 | `AZURE_LOCATION` | Environment variable | `eastus2` | Resource-group and Static Web App metadata region. |
 | `AZURE_RESOURCE_GROUP` | Environment variable | `m365profiles-production` | Resource group owned by this Environment. |
 | `AZURE_STATIC_WEB_APP_NAME` | Environment variable | `m365profiles-production-site` | Globally unique Static Web Apps resource name. |
 | `AZURE_PUBLIC_SITE_URL` | Environment variable | `https://m365profiles.com` | Canonical URL embedded into the Astro build. |
 | `AZURE_SITE_SKU` | Environment variable | `Free` | Use `Standard` only for a required plan feature. |
+
+Pushes to `main` deploy to `deployment-production` and use `https://m365profiles.com`.
+Pushes to `dev` deploy to `deployment-development` and use
+`https://dev.m365profiles.com`. The development environment needs its own
+`AZURE_STATIC_WEB_APPS_API_TOKEN` for the development Static Web App; tokens
+must not be shared between environments. Configure `dev.m365profiles.com` as
+an Azure Static Web Apps custom domain and point its DNS record at the
+development app before relying on the hostname.
+
+The hosted development target uses `NP-m365profiles-Dev-CentralUS` for both
+the resource group and Static Web App name, in `centralus`. Store its publish
+token as `AZURE_STATIC_WEB_APPS_API_TOKEN_DEV`; the `dev` branch workflow uses
+that secret and never uses the production publish token.
 
 `staticwebapp.config.json` configures the Azure Static Web Apps navigation fallback, 404 handling, MIME type, and HTTP security headers. `PUBLIC_SITE_BASE` is always `/` for this target.
 
