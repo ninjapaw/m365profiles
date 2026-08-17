@@ -1,6 +1,6 @@
 # Azure Deployment Plan
 
-- **Status:** Ready for Validation
+- **Status:** Validated
 - **Target:** Azure Static Web Apps
 - **Application:** M365 Profiles (Astro static site)
 - **Mode:** Modernize an existing static site without adding a backend.
@@ -42,6 +42,21 @@
 
 ## All Validation Checks Pass
 
+### AZD Recipe Validation Steps
+
+- [x] 1. AZD Installation
+- [x] 2. Schema Validation
+- [x] 3. Environment Setup
+- [x] 4. Authentication Check
+- [x] 5. Subscription/Location Check
+- [x] 6. Aspire Pre-Provisioning Checks (not applicable; this is not an Aspire project)
+- [x] 7. Provision Preview
+- [x] 8. Build Verification
+- [x] 9. Docker Build Context Validation (not applicable; no Dockerfile is used)
+- [x] 10. Package Validation
+- [x] 11. Azure Policy Validation
+- [x] 12. Aspire Post-Provisioning Checks (not applicable; this is not an Aspire project)
+
 - [x] Bicep templates and Bicep parameters compile through the Azure Bicep
   service, including Azure Verified Module `avm/res/web/static-site:0.9.5`.
 - [x] Bootstrap and environment-validation shell scripts pass `bash -n`.
@@ -75,3 +90,15 @@
   for the intended protected environment. Run the bootstrap command in
   `README.md`, then run the infrastructure workflow with `operation: what-if`
   before its `deploy` operation.
+- Production environment validation for `NP-StaticSite-m365profiles-CentralUS`
+  in `centralus`: `azd version`, `azd auth login --check-status`, and
+  `infra/azure/validate-environment.sh` passed. The environment targets
+  `NP-m365profiles-Prod-CentralUS` under subscription
+  `aae23697-a987-4b94-95b9-382230c0cce6`.
+- `azd provision --preview --no-prompt --environment production`: pass;
+  creates one Free Static Web App and makes no modifications or deletions.
+- `npm run build` and `azd package --no-prompt --environment production`:
+  pass.
+- Subscription Azure Policy review: pass; the two inherited assignments do not
+  restrict Static Web Apps, Central US, the Free SKU, resource-group creation,
+  or the required Bicep tags.
