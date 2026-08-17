@@ -90,7 +90,7 @@
   for the intended protected environment. Run the bootstrap command in
   `README.md`, then run the infrastructure workflow with `operation: what-if`
   before its `deploy` operation.
-- Production environment validation for `NP-StaticSite-m365profiles-CentralUS`
+- Production environment validation for `NP-m365profiles-CentralUS`
   in `centralus`: `azd version`, `azd auth login --check-status`, and
   `infra/azure/validate-environment.sh` passed. The environment targets
   `NP-m365profiles-Prod-CentralUS` under subscription
