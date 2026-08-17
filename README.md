@@ -204,6 +204,7 @@ release as soon as they revisit the tab.
 | --- | --- | --- |
 | [`deploy-azure-infrastructure.yml`](.github/workflows/deploy-azure-infrastructure.yml) | IaC changes, PR, manual | Compiles Bicep. A manual run performs an OIDC-authenticated `what-if` or deploys the Static Web App. |
 | [`deploy.yml`](.github/workflows/deploy.yml) | push to `main` or `dev`, manual | Validate tree → build → publish to the matching Azure Static Web Apps environment → tag CalVer release. Add `[skip release]` to skip tagging. |
+| [`promote-dev-to-main.yml`](.github/workflows/promote-dev-to-main.yml) | manual from `dev` | Creates or reuses the `dev` → `main` promotion pull request for review and merge. |
 | [`lint.yml`](.github/workflows/lint.yml) | push + PR to `main` | Build + tree validation, typecheck, markdownlint, link check, format check. |
 
 The site is fully static (no API routes), so it deploys to **Azure Static Web Apps Free** with no Azure Functions app required. `azure.yaml` and [`infra/`](infra/) make the resource reproducible through Bicep and Azure Developer CLI. The resource is kept separate from the static publish step: Bicep creates the Static Web App, while the deployment workflow publishes the verified Astro `dist/` output.
