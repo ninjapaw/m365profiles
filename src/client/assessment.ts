@@ -599,7 +599,11 @@ class Assessment {
           { type: "button", class: "btn btn-secondary", "data-copy": true },
           "Copy report summary"
         ),
-        h("button", { type: "button", class: "btn btn-secondary", "data-print": true }, "Print report"),
+        h(
+          "button",
+          { type: "button", class: "btn btn-secondary", "data-print": true },
+          "Print report"
+        ),
         h(
           "button",
           { type: "button", class: "btn btn-ghost", "data-restart": true },

@@ -1216,7 +1216,8 @@ export const RESULT_PRICING: Record<string, ResultPricing> = {
       "This IS the privileged-admin guidance — see info_privileged_admins for the full guide. Key rule: portal access is ROLE-GATED for most admin scenarios (Defender XDR, Microsoft Purview, Intune admin center, Microsoft 365 admin center, Microsoft Sentinel, Security Copilot). Only seven scenarios trigger a per-user license on the admin's OWN account: (1) Remote Help helper, (2) Teams Premium admin features, (3) Entra ID Governance configurator, (4) PIM eligible/approver/reviewer, (5) Identity Protection scope, (6) Copilot for self, (7) GSA client on admin's device.",
   },
   result_entra_id_p1_admin: {
-    recommendationLabel: "Microsoft Entra ID P1 (admin is in CA / SSPR-writeback / App Proxy / Cloud Discovery scope)",
+    recommendationLabel:
+      "Microsoft Entra ID P1 (admin is in CA / SSPR-writeback / App Proxy / Cloud Discovery scope)",
     lines: [
       {
         label: "Microsoft Entra ID P1 (admin's own account)",

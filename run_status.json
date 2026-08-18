@@ -1,1 +1,132 @@
-{"conclusion":"failure","jobs":[{"completedAt":"2026-08-17T04:24:43Z","conclusion":"failure","databaseId":95283182678,"name":"build_and_deploy","startedAt":"2026-08-17T04:23:44Z","status":"completed","steps":[{"completedAt":"2026-08-17T04:23:47Z","conclusion":"success","name":"Set up job","number":1,"startedAt":"2026-08-17T04:23:45Z","status":"completed"},{"completedAt":"2026-08-17T04:24:19Z","conclusion":"success","name":"Build Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9","number":2,"startedAt":"2026-08-17T04:23:47Z","status":"completed"},{"completedAt":"2026-08-17T04:24:20Z","conclusion":"success","name":"Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683","number":3,"startedAt":"2026-08-17T04:24:19Z","status":"completed"},{"completedAt":"2026-08-17T04:24:25Z","conclusion":"success","name":"Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020","number":4,"startedAt":"2026-08-17T04:24:20Z","status":"completed"},{"completedAt":"2026-08-17T04:24:38Z","conclusion":"success","name":"Run npm ci","number":5,"startedAt":"2026-08-17T04:24:25Z","status":"completed"},{"completedAt":"2026-08-17T04:24:39Z","conclusion":"success","name":"Run npm run validate-tree","number":6,"startedAt":"2026-08-17T04:24:38Z","status":"completed"},{"completedAt":"2026-08-17T04:24:39Z","conclusion":"success","name":"Set build version","number":7,"startedAt":"2026-08-17T04:24:39Z","status":"completed"},{"completedAt":"2026-08-17T04:24:41Z","conclusion":"failure","name":"Build","number":8,"startedAt":"2026-08-17T04:24:39Z","status":"completed"},{"completedAt":"2026-08-17T04:24:41Z","conclusion":"skipped","name":"Verify Static Web Apps deployment token","number":9,"startedAt":"2026-08-17T04:24:41Z","status":"completed"},{"completedAt":"2026-08-17T04:24:41Z","conclusion":"skipped","name":"Deploy to Azure Static Web Apps","number":10,"startedAt":"2026-08-17T04:24:41Z","status":"completed"},{"completedAt":"2026-08-17T04:24:41Z","conclusion":"skipped","name":"Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020","number":19,"startedAt":"2026-08-17T04:24:41Z","status":"completed"},{"completedAt":"2026-08-17T04:24:41Z","conclusion":"success","name":"Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683","number":20,"startedAt":"2026-08-17T04:24:41Z","status":"completed"},{"completedAt":"2026-08-17T04:24:41Z","conclusion":"success","name":"Complete job","number":21,"startedAt":"2026-08-17T04:24:41Z","status":"completed"}],"url":"https://github.com/ninjapaw/m365profiles/actions/runs/31994314964/job/95283182678"},{"completedAt":"2026-08-17T04:24:43Z","conclusion":"skipped","databaseId":95283341257,"name":"release","startedAt":"2026-08-17T04:24:43Z","status":"completed","steps":[],"url":"https://github.com/ninjapaw/m365profiles/actions/runs/31994314964/job/95283341257"}],"status":"completed","url":"https://github.com/ninjapaw/m365profiles/actions/runs/31994314964"}
+{
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "completedAt": "2026-08-17T04:24:43Z",
+      "conclusion": "failure",
+      "databaseId": 95283182678,
+      "name": "build_and_deploy",
+      "startedAt": "2026-08-17T04:23:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-08-17T04:23:47Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-08-17T04:23:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-08-17T04:24:19Z",
+          "conclusion": "success",
+          "name": "Build Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9",
+          "number": 2,
+          "startedAt": "2026-08-17T04:23:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-08-17T04:24:20Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 3,
+          "startedAt": "2026-08-17T04:24:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-08-17T04:24:25Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "number": 4,
+          "startedAt": "2026-08-17T04:24:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-08-17T04:24:38Z",
+          "conclusion": "success",
+          "name": "Run npm ci",
+          "number": 5,
+          "startedAt": "2026-08-17T04:24:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-08-17T04:24:39Z",
+          "conclusion": "success",
+          "name": "Run npm run validate-tree",
+          "number": 6,
+          "startedAt": "2026-08-17T04:24:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-08-17T04:24:39Z",
+          "conclusion": "success",
+          "name": "Set build version",
+          "number": 7,
+          "startedAt": "2026-08-17T04:24:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-08-17T04:24:41Z",
+          "conclusion": "failure",
+          "name": "Build",
+          "number": 8,
+          "startedAt": "2026-08-17T04:24:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-08-17T04:24:41Z",
+          "conclusion": "skipped",
+          "name": "Verify Static Web Apps deployment token",
+          "number": 9,
+          "startedAt": "2026-08-17T04:24:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-08-17T04:24:41Z",
+          "conclusion": "skipped",
+          "name": "Deploy to Azure Static Web Apps",
+          "number": 10,
+          "startedAt": "2026-08-17T04:24:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-08-17T04:24:41Z",
+          "conclusion": "skipped",
+          "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "number": 19,
+          "startedAt": "2026-08-17T04:24:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-08-17T04:24:41Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 20,
+          "startedAt": "2026-08-17T04:24:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-08-17T04:24:41Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 21,
+          "startedAt": "2026-08-17T04:24:41Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/ninjapaw/m365profiles/actions/runs/31994314964/job/95283182678"
+    },
+    {
+      "completedAt": "2026-08-17T04:24:43Z",
+      "conclusion": "skipped",
+      "databaseId": 95283341257,
+      "name": "release",
+      "startedAt": "2026-08-17T04:24:43Z",
+      "status": "completed",
+      "steps": [],
+      "url": "https://github.com/ninjapaw/m365profiles/actions/runs/31994314964/job/95283341257"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/ninjapaw/m365profiles/actions/runs/31994314964"
+}
