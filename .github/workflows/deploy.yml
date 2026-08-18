@@ -10,14 +10,14 @@ on:
         required: false
         default: auto-detect
         type: choice
-        options: [auto-detect, development, production]
+        options: [auto-detect, dev, prod]
 
 permissions:
   contents: read
 
-# dev maps to development, main maps to production.
+# Branch dev uses the dev environment, branch main uses the prod environment.
 concurrency:
-  group: deploy-${{ (inputs.environment != '' && inputs.environment != 'auto-detect' && inputs.environment) || (github.ref_name == 'main' && 'production' || 'development') }}
+  group: deploy-${{ (inputs.environment != '' && inputs.environment != 'auto-detect' && inputs.environment) || (github.ref_name == 'main' && 'prod' || 'dev') }}
   cancel-in-progress: false
 
 jobs:
@@ -34,8 +34,8 @@ jobs:
           INPUT_ENVIRONMENT: ${{ inputs.environment }}
         run: |
           case "$BRANCH" in
-            main) detected=production ;;
-            dev) detected=development ;;
+            main) detected=prod ;;
+            dev) detected=dev ;;
             *) detected="" ;;
           esac
 
@@ -53,7 +53,7 @@ jobs:
             exit 1
           fi
 
-          if [ "$environment" = "production" ]; then
+          if [ "$environment" = "prod" ]; then
             site_url="https://m365profiles.com"
           else
             site_url="https://dev.m365profiles.com"
@@ -66,7 +66,7 @@ jobs:
   build_and_deploy:
     needs: resolve_environment
     runs-on: ubuntu-latest
-    environment: deployment-${{ needs.resolve_environment.outputs.environment }}
+    environment: ${{ needs.resolve_environment.outputs.environment }}
     outputs:
       app_version: ${{ steps.version.outputs.app_version }}
     steps:
@@ -111,7 +111,7 @@ jobs:
           skip_app_build: true
 
   release:
-    if: ${{ needs.resolve_environment.outputs.environment == 'production' && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip release]')) }}
+    if: ${{ needs.resolve_environment.outputs.environment == 'prod' && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip release]')) }}
     needs: [resolve_environment, build_and_deploy]
     runs-on: ubuntu-latest
     permissions:
