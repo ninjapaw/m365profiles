@@ -16,7 +16,7 @@ Bootstrap Azure and GitHub OIDC for M365 Profiles.
 Usage: infra/azure/bootstrap.sh --resource-group <name> --site-name <name> --public-site-url <https-url> [options]
 
 Options:
-  --environment <name>       GitHub Environment scope: development or production
+  --environment <name>       GitHub Environment scope: development (dev) or production (prod)
   --resource-group <name>    Azure resource group
   --site-name <name>         Globally unique Static Web App name
   --public-site-url <url>    Canonical HTTPS site URL
@@ -63,7 +63,8 @@ subscription_id="$(az account show --query id --output tsv)"
 tenant_id="$(az account show --query tenantId --output tsv)"
 gh auth status >/dev/null
 repository="${repository:-$(gh repo view --json nameWithOwner --jq .nameWithOwner)}"
-github_environment="deployment-${environment_name}"
+github_environment="$([[ "$environment_name" == production ]] && echo prod || echo dev)"
+deployment_branch="$([[ "$environment_name" == production ]] && echo main || echo dev)"
 application_name="m365profiles-${environment_name}-infrastructure-github"
 
 az provider register --namespace Microsoft.Web --wait
@@ -104,10 +105,20 @@ fi
 gh api --method PUT "repos/${repository}/environments/${github_environment}" --input - --silent <<'JSON'
 {"deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true}}
 JSON
+
+# custom_branch_policies with no entries blocks every deployment.
+branch_policy_count="$(gh api "repos/${repository}/environments/${github_environment}/deployment-branch-policies" \
+  --jq "[.branch_policies[] | select(.name == \"$deployment_branch\")] | length")"
+if [[ "$branch_policy_count" == 0 ]]; then
+  gh api --method POST "repos/${repository}/environments/${github_environment}/deployment-branch-policies" \
+    --field name="$deployment_branch" --silent
+fi
+
 printf '%s' "$client_id" | gh secret set AZURE_CLIENT_ID --env "$github_environment" --repo "$repository"
 printf '%s' "$tenant_id" | gh secret set AZURE_TENANT_ID --env "$github_environment" --repo "$repository"
 printf '%s' "$subscription_id" | gh secret set AZURE_SUBSCRIPTION_ID --env "$github_environment" --repo "$repository"
 gh variable set AZURE_LOCATION --env "$github_environment" --repo "$repository" --body "$location"
+gh variable set AZURE_ENVIRONMENT --env "$github_environment" --repo "$repository" --body "$environment_name"
 gh variable set AZURE_RESOURCE_GROUP --env "$github_environment" --repo "$repository" --body "$resource_group"
 gh variable set AZURE_STATIC_WEB_APP_NAME --env "$github_environment" --repo "$repository" --body "$site_name"
 gh variable set AZURE_PUBLIC_SITE_URL --env "$github_environment" --repo "$repository" --body "$public_site_url"
