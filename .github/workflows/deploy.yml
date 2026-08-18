@@ -15,8 +15,9 @@ on:
 permissions:
   contents: read
 
+# dev maps to development, main maps to production.
 concurrency:
-  group: deploy-${{ (inputs.environment && inputs.environment != 'auto-detect' && inputs.environment) || (github.ref_name == 'dev' && 'development' || 'production') }}
+  group: deploy-${{ (inputs.environment != '' && inputs.environment != 'auto-detect' && inputs.environment) || (github.ref_name == 'main' && 'production' || 'development') }}
   cancel-in-progress: false
 
 jobs:
@@ -28,18 +29,27 @@ jobs:
     steps:
       - name: Detect environment from branch or input
         id: detect
+        env:
+          BRANCH: ${{ github.ref_name }}
+          INPUT_ENVIRONMENT: ${{ inputs.environment }}
         run: |
-          branch="${{ github.ref_name }}"
-          input_environment="${{ inputs.environment }}"
+          case "$BRANCH" in
+            main) detected=production ;;
+            dev) detected=development ;;
+            *) detected="" ;;
+          esac
 
-          if [ -n "$input_environment" ] && [ "$input_environment" != "auto-detect" ]; then
-            environment="$input_environment"
-          elif [ "$branch" = "main" ]; then
-            environment="production"
-          elif [ "$branch" = "dev" ]; then
-            environment="development"
+          if [ -n "$INPUT_ENVIRONMENT" ] && [ "$INPUT_ENVIRONMENT" != "auto-detect" ]; then
+            environment="$INPUT_ENVIRONMENT"
+          elif [ -n "$detected" ]; then
+            environment="$detected"
           else
-            echo "::error::Cannot auto-detect environment for branch '$branch'. Re-run with an explicit environment input."
+            echo "::error title=Unsupported branch::Cannot auto-detect an environment for '$BRANCH'. Deploy from 'dev' or 'main'."
+            exit 1
+          fi
+
+          if [ -n "$detected" ] && [ "$environment" != "$detected" ]; then
+            echo "::error title=Branch and environment mismatch::Branch '$BRANCH' maps to $detected, not $environment."
             exit 1
           fi
 
@@ -49,10 +59,9 @@ jobs:
             site_url="https://dev.m365profiles.com"
           fi
 
-          echo "Detected branch: $branch"
-          echo "Resolved environment: $environment"
           echo "environment=$environment" >> "$GITHUB_OUTPUT"
           echo "site_url=$site_url" >> "$GITHUB_OUTPUT"
+          echo "Deploying '$BRANCH' to the $environment environment." >> "$GITHUB_STEP_SUMMARY"
 
   build_and_deploy:
     needs: resolve_environment
