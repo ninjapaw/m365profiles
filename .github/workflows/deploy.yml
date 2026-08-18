@@ -6,23 +6,58 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: GitHub Environment to deploy
-        required: true
-        default: production
+        description: GitHub Environment to deploy (leave as auto-detect to infer from the branch)
+        required: false
+        default: auto-detect
         type: choice
-        options: [development, production]
+        options: [auto-detect, development, production]
 
 permissions:
   contents: read
 
 concurrency:
-  group: deploy-${{ inputs.environment || (github.ref_name == 'dev' && 'development' || 'production') }}
+  group: deploy-${{ (inputs.environment && inputs.environment != 'auto-detect' && inputs.environment) || (github.ref_name == 'dev' && 'development' || 'production') }}
   cancel-in-progress: false
 
 jobs:
-  build_and_deploy:
+  resolve_environment:
     runs-on: ubuntu-latest
-    environment: deployment-${{ inputs.environment || (github.ref_name == 'dev' && 'development' || 'production') }}
+    outputs:
+      environment: ${{ steps.detect.outputs.environment }}
+      site_url: ${{ steps.detect.outputs.site_url }}
+    steps:
+      - name: Detect environment from branch or input
+        id: detect
+        run: |
+          branch="${{ github.ref_name }}"
+          input_environment="${{ inputs.environment }}"
+
+          if [ -n "$input_environment" ] && [ "$input_environment" != "auto-detect" ]; then
+            environment="$input_environment"
+          elif [ "$branch" = "main" ]; then
+            environment="production"
+          elif [ "$branch" = "dev" ]; then
+            environment="development"
+          else
+            echo "::error::Cannot auto-detect environment for branch '$branch'. Re-run with an explicit environment input."
+            exit 1
+          fi
+
+          if [ "$environment" = "production" ]; then
+            site_url="https://m365profiles.com"
+          else
+            site_url="https://dev.m365profiles.com"
+          fi
+
+          echo "Detected branch: $branch"
+          echo "Resolved environment: $environment"
+          echo "environment=$environment" >> "$GITHUB_OUTPUT"
+          echo "site_url=$site_url" >> "$GITHUB_OUTPUT"
+
+  build_and_deploy:
+    needs: resolve_environment
+    runs-on: ubuntu-latest
+    environment: deployment-${{ needs.resolve_environment.outputs.environment }}
     outputs:
       app_version: ${{ steps.version.outputs.app_version }}
     steps:
@@ -47,7 +82,7 @@ jobs:
 
       - name: Build
         env:
-          PUBLIC_SITE_URL: ${{ vars.AZURE_PUBLIC_SITE_URL || vars.PUBLIC_SITE_URL || (github.ref_name == 'dev' && 'https://dev.m365profiles.com' || 'https://m365profiles.com') }}
+          PUBLIC_SITE_URL: ${{ vars.AZURE_PUBLIC_SITE_URL || vars.PUBLIC_SITE_URL || needs.resolve_environment.outputs.site_url }}
           PUBLIC_SITE_BASE: "/"
         run: npm run build
 
@@ -67,8 +102,8 @@ jobs:
           skip_app_build: true
 
   release:
-    if: ${{ (github.ref_name == 'main' || github.event_name == 'workflow_dispatch') && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip release]')) }}
-    needs: build_and_deploy
+    if: ${{ needs.resolve_environment.outputs.environment == 'production' && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip release]')) }}
+    needs: [resolve_environment, build_and_deploy]
     runs-on: ubuntu-latest
     permissions:
       contents: write
