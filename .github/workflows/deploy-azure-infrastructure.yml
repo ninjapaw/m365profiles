@@ -65,7 +65,7 @@ jobs:
       id-token: write
     env:
       AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
-      AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT || (github.ref_name == 'main' && 'production' || 'development') }}
+      AZURE_ENVIRONMENT: ${{ vars.AZURE_ENVIRONMENT || (github.ref_name == 'main' && 'prod' || 'dev') }}
       AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
       AZURE_STATIC_WEB_APP_NAME: ${{ vars.AZURE_STATIC_WEB_APP_NAME }}
       AZURE_PUBLIC_SITE_URL: ${{ vars.AZURE_PUBLIC_SITE_URL }}
@@ -78,20 +78,34 @@ jobs:
           SOURCE_REF: ${{ github.ref_name }}
         run: |
           case "$SOURCE_REF" in
-            main) detected=production ;;
-            dev) detected=development ;;
+            main) detected=prod ;;
+            dev) detected=dev ;;
             *)
-              echo "::error title=Unsupported branch::Deploy from 'dev' (development) or 'main' (production), not '$SOURCE_REF'."
+              echo "::error title=Unsupported branch::Deploy from 'dev' or 'main', not '$SOURCE_REF'."
               exit 1
               ;;
           esac
 
-          if [[ "$AZURE_ENVIRONMENT" != "$detected" ]]; then
-            echo "::error title=Branch and environment mismatch::Branch '$SOURCE_REF' maps to $detected, not $AZURE_ENVIRONMENT."
+          case "${AZURE_ENVIRONMENT:-}" in
+            dev|prod) normalized_environment="$AZURE_ENVIRONMENT" ;;
+            development|production) normalized_environment="${AZURE_ENVIRONMENT/development/dev}" ; normalized_environment="${normalized_environment/production/prod}" ;;
+            *)
+              echo "::error title=Invalid environment::AZURE_ENVIRONMENT must be 'dev'/'prod' or 'development'/'production'."
+              exit 1
+              ;;
+          esac
+
+          if [[ "$normalized_environment" != "$detected" ]]; then
+            echo "::error title=Branch and environment mismatch::Branch '$SOURCE_REF' maps to $detected, not $normalized_environment."
             exit 1
           fi
 
-          echo "Targeting the $AZURE_ENVIRONMENT environment from '$SOURCE_REF'." >> "$GITHUB_STEP_SUMMARY"
+          if [ -f config/deploy.config.json ]; then
+            jq -e --arg env "$normalized_environment" '.environments[$env]' config/deploy.config.json >/dev/null
+          fi
+
+          echo "Targeting the $normalized_environment environment from '$SOURCE_REF'." >> "$GITHUB_STEP_SUMMARY"
+          echo "AZURE_ENVIRONMENT=$normalized_environment" >> "$GITHUB_ENV"
 
       - name: Validate Environment configuration
         run: bash infra/azure/validate-environment.sh
@@ -112,4 +126,4 @@ jobs:
             --name "m365profiles-site-${GITHUB_RUN_NUMBER}" \
             --resource-group "$AZURE_RESOURCE_GROUP" \
             --template-file infra/main.bicep \
-            --parameters location="$AZURE_LOCATION" siteName="$AZURE_STATIC_WEB_APP_NAME" environmentName="$AZURE_ENVIRONMENT" siteSkuName="$AZURE_SITE_SKU"
+            --parameters location="$AZURE_LOCATION" siteName="$AZURE_STATIC_WEB_APP_NAME" environmentName="${AZURE_ENVIRONMENT:-dev}" siteSkuName="$AZURE_SITE_SKU"

@@ -1,8 +1,34 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-location="${AZURE_LOCATION:-eastus2}"
-environment_name="${AZURE_ENVIRONMENT:-development}"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "${script_dir}/../.." && pwd)"
+config_file="${DEPLOY_CONFIG_FILE:-${repo_root}/config/deploy.config.json}"
+
+config_value() {
+  local key="$1"
+  local environment_name="$2"
+  local default_value="${3:-}"
+
+  if [[ -f "$config_file" ]]; then
+    jq -r --arg env "$environment_name" --arg key "$key" '.environments[$env] // .defaults | .[$key] // .defaults[$key] // empty' "$config_file" 2>/dev/null || true
+  fi
+
+  if [[ -z "$(jq -r --arg env "$environment_name" --arg key "$key" '.environments[$env] // .defaults | .[$key] // .defaults[$key] // empty' "$config_file" 2>/dev/null || true)" ]]; then
+    printf '%s' "$default_value"
+  fi
+}
+
+normalize_environment() {
+  case "$1" in
+    development|dev) printf 'dev' ;;
+    production|prod) printf 'prod' ;;
+    *) printf '%s\n' "$1" >&2; printf 'Unsupported environment: %s\n' "$1" >&2; exit 1 ;;
+  esac
+}
+
+location="${AZURE_LOCATION:-$(config_value location "${AZURE_ENVIRONMENT:-dev}" "centralus") }"
+environment_name="$(normalize_environment "${AZURE_ENVIRONMENT:-dev}")"
 resource_group="${AZURE_RESOURCE_GROUP:-}"
 site_name="${AZURE_STATIC_WEB_APP_NAME:-}"
 public_site_url="${AZURE_PUBLIC_SITE_URL:-}"
@@ -29,7 +55,7 @@ EOF
 
 while (($# > 0)); do
   case "$1" in
-    --environment) environment_name="$2"; shift 2 ;;
+    --environment) environment_name="$(normalize_environment "$2")"; shift 2 ;;
     --resource-group) resource_group="$2"; shift 2 ;;
     --site-name) site_name="$2"; shift 2 ;;
     --public-site-url) public_site_url="$2"; shift 2 ;;
@@ -45,7 +71,20 @@ for command_name in az gh jq; do
   command -v "$command_name" >/dev/null || { printf "Required command '%s' was not found.\n" "$command_name" >&2; exit 1; }
 done
 
-[[ "$environment_name" == development || "$environment_name" == production ]] || { printf '%s\n' '--environment must be development or production.' >&2; exit 1; }
+if [[ -z "$resource_group" ]]; then
+  resource_group="$(config_value resourceGroup "$environment_name" "")"
+fi
+if [[ -z "$site_name" ]]; then
+  site_name="$(config_value siteName "$environment_name" "")"
+fi
+if [[ -z "$public_site_url" ]]; then
+  public_site_url="$(config_value publicSiteUrl "$environment_name" "")"
+fi
+if [[ -z "$location" ]]; then
+  location="$(config_value location "$environment_name" "eastus2")"
+fi
+
+[[ "$environment_name" == dev || "$environment_name" == prod ]] || { printf '%s\n' '--environment must be dev or prod.' >&2; exit 1; }
 [[ -n "$resource_group" && -n "$site_name" && "$public_site_url" =~ ^https://[^[:space:]]+$ ]] || { printf '%s\n' 'Set --resource-group, --site-name, and --public-site-url.' >&2; exit 1; }
 
 az account show >/dev/null
@@ -63,8 +102,8 @@ subscription_id="$(az account show --query id --output tsv)"
 tenant_id="$(az account show --query tenantId --output tsv)"
 gh auth status >/dev/null
 repository="${repository:-$(gh repo view --json nameWithOwner --jq .nameWithOwner)}"
-github_environment="$([[ "$environment_name" == production ]] && echo prod || echo dev)"
-deployment_branch="$([[ "$environment_name" == production ]] && echo main || echo dev)"
+github_environment="$environment_name"
+deployment_branch="$([[ "$environment_name" == prod ]] && echo main || echo dev)"
 application_name="m365profiles-${environment_name}-infrastructure-github"
 
 az provider register --namespace Microsoft.Web --wait

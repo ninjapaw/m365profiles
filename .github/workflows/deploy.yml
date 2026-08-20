@@ -33,6 +33,13 @@ jobs:
           BRANCH: ${{ github.ref_name }}
           INPUT_ENVIRONMENT: ${{ inputs.environment }}
         run: |
+          config_file="config/deploy.config.json"
+
+          if [ ! -f "$config_file" ]; then
+            echo "::error title=Missing config::Expected config/deploy.config.json to define environment defaults."
+            exit 1
+          fi
+
           case "$BRANCH" in
             main) detected=prod ;;
             dev) detected=dev ;;
@@ -53,10 +60,10 @@ jobs:
             exit 1
           fi
 
-          if [ "$environment" = "prod" ]; then
-            site_url="https://m365profiles.com"
-          else
-            site_url="https://dev.m365profiles.com"
+          site_url="$(jq -r --arg env "$environment" '.environments[$env].publicSiteUrl // .defaults.publicSiteUrl' "$config_file")"
+          if [ -z "$site_url" ] || [ "$site_url" = "null" ]; then
+            echo "::error title=Invalid config::publicSiteUrl is missing for environment '$environment'."
+            exit 1
           fi
 
           echo "environment=$environment" >> "$GITHUB_OUTPUT"

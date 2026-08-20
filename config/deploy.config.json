@@ -1,0 +1,39 @@
+{
+  "project": {
+    "name": "m365profiles",
+    "siteName": "m365profiles",
+    "repository": "ninjapaw/m365profiles"
+  },
+  "defaults": {
+    "location": "centralus",
+    "resourceGroup": "m365profiles-dev",
+    "siteName": "m365profiles-dev-site",
+    "publicSiteUrl": "https://dev.m365profiles.com",
+    "siteSku": "Free",
+    "siteBase": "/"
+  },
+  "environments": {
+    "dev": {
+      "branch": "dev",
+      "azureEnvironment": "development",
+      "githubEnvironment": "dev",
+      "location": "centralus",
+      "resourceGroup": "m365profiles-dev",
+      "siteName": "m365profiles-dev-site",
+      "publicSiteUrl": "https://dev.m365profiles.com",
+      "siteSku": "Free",
+      "siteBase": "/"
+    },
+    "prod": {
+      "branch": "main",
+      "azureEnvironment": "production",
+      "githubEnvironment": "prod",
+      "location": "centralus",
+      "resourceGroup": "m365profiles-prod",
+      "siteName": "m365profiles-prod-site",
+      "publicSiteUrl": "https://m365profiles.com",
+      "siteSku": "Free",
+      "siteBase": "/"
+    }
+  }
+}

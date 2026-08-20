@@ -209,6 +209,8 @@ release as soon as they revisit the tab.
 
 The site is fully static (no API routes), so it deploys to **Azure Static Web Apps Free** with no Azure Functions app required. `azure.yaml` and [`infra/`](infra/) make the resource reproducible through Bicep and Azure Developer CLI. The resource is kept separate from the static publish step: Bicep creates the Static Web App, while the deployment workflow publishes the verified Astro `dist/` output.
 
+The deployment model stays intentionally lightweight: this app does not need a backend, database, or Key Vault-backed app secret. Keep environment-specific values in GitHub Environment variables and secrets (for example `AZURE_SUBSCRIPTION_ID`, `AZURE_CLIENT_ID`, `AZURE_STATIC_WEB_APPS_API_TOKEN`), and keep the default public configuration in `config/deploy.config.json`. Only introduce Azure Key Vault once a server-side workload or secret-bearing API is added.
+
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fninjapaw%2Fm365profiles%2Fmain%2Finfra%2Fazure%2Fsite%2Fazuredeploy.json)
 
 The button provisions only the Static Web App resource. For repeatable environments and GitHub Actions deployment, use the bootstrap script instead. It creates or reuses an Entra application, configures GitHub Environment OIDC trust, scopes `Contributor` to the target resource group, and writes non-secret GitHub Environment variables:
@@ -226,36 +228,37 @@ bash infra/azure/bootstrap.sh \
 
 The script refuses the subscription named `MCPP Subscription - DO NOT USE`. Run **Validate and Deploy Azure Infrastructure** with `operation: deploy` and `environment: production`; then rerun the bootstrap command after the site exists so it can set the Static Web Apps publish token.
 
-Create protected `deployment-development` and `deployment-production` GitHub Environments. The bootstrap script configures these values; they can also be configured manually:
+Create protected `dev` and `prod` GitHub Environments. The bootstrap script configures these values; they can also be configured manually:
 
 | Name | Type | Example | Notes |
 | --- | --- | --- | --- |
 | `AZURE_CLIENT_ID` | Environment secret | *(OIDC app ID)* | Infrastructure deployment identity. No client secret is used. |
 | `AZURE_TENANT_ID` | Environment secret | *(tenant ID)* | Tenant containing the OIDC application. |
 | `AZURE_SUBSCRIPTION_ID` | Environment secret | *(subscription ID)* | Subscription that owns the target resource group. |
-| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Environment secret | *(Static Web App deployment token)* | Required to publish. Set the development app token in `deployment-development` and the production app token in `deployment-production`. Rotate immediately if exposed. |
+| `AZURE_STATIC_WEB_APPS_API_TOKEN` | Environment secret | *(Static Web App deployment token)* | Required to publish. Set the dev app token in `dev` and the prod app token in `prod`. Rotate immediately if exposed. |
 | `AZURE_LOCATION` | Environment variable | `eastus2` | Resource-group and Static Web App metadata region. |
 | `AZURE_RESOURCE_GROUP` | Environment variable | `m365profiles-production` | Resource group owned by this Environment. |
 | `AZURE_STATIC_WEB_APP_NAME` | Environment variable | `m365profiles-production-site` | Globally unique Static Web Apps resource name. |
 | `AZURE_PUBLIC_SITE_URL` | Environment variable | `https://m365profiles.com` | Canonical URL embedded into the Astro build. |
 | `AZURE_SITE_SKU` | Environment variable | `Free` | Use `Standard` only for a required plan feature. |
 
-Pushes to `main` deploy to `deployment-production` and use `https://m365profiles.com`.
-Pushes to `dev` deploy to `deployment-development` and use
-`https://dev.m365profiles.com`. Both environments use the same variable and
-secret names, but their values are isolated by GitHub Environment: set each
-environment's own `AZURE_STATIC_WEB_APPS_API_TOKEN` and do not share tokens.
+Pushes to `main` deploy to `prod` and use `https://m365profiles.com`.
+Pushes to `dev` deploy to `dev` and use `https://dev.m365profiles.com`.
+Both environments use the same variable and secret names, but their values are
+isolated by GitHub Environment: set each environment's own
+`AZURE_STATIC_WEB_APPS_API_TOKEN` and do not share tokens.
 Configure `dev.m365profiles.com` as an Azure Static Web Apps custom domain and
-point its DNS record at the development app before relying on the hostname.
+point its DNS record at the dev app before relying on the hostname.
 
-The hosted development target shares the `NP-m365profiles-CentralUS` resource
-group with production and uses the `NP-m365profiles-Dev-CentralUS` Static Web
-App name in `centralus`. The `dev` workflow resolves all values from
-`deployment-development`; it never reads `deployment-production` secrets.
+The hosted development target uses the `m365profiles-dev` resource group and the
+`m365profiles-dev-site` Static Web App name in `centralus`. The `dev` workflow
+resolves all values from the `dev` Environment; it never reads `prod` secrets.
 
 `staticwebapp.config.json` configures the Azure Static Web Apps navigation fallback, 404 handling, MIME type, and HTTP security headers. `PUBLIC_SITE_BASE` is always `/` for this target.
 
 **Custom domain:** add the domain under the Static Web App's **Custom domains** blade, then set `AZURE_PUBLIC_SITE_URL` in the matching GitHub Environment before publishing the next build.
+
+The repo intentionally keeps environment-specific values out of source control. Use GitHub Environment variables and secrets for the real values for each target: `dev` for the preview site and `prod` for the live site.
 
 ## Project layout
 
