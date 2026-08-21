@@ -19,8 +19,7 @@ dist/
 .astro/
 
 # Azure Developer CLI local environment state
-.azure/*
-!.azure/deployment-plan.md
+.azure/
 
 # OS / editor noise
 .DS_Store
