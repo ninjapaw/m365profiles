@@ -16,6 +16,7 @@
     "test:state": "node scripts/test-state-invariants.mjs",
     "test:links": "node scripts/test-site-links.mjs",
     "typecheck": "astro check",
+    "test:e2e": "playwright test",
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#dist\" \"#.astro\"",
     "lint": "npm run lint:md",
     "format": "prettier --check .",
@@ -28,7 +29,7 @@
     "url": "git+https://github.com/ninjapaw/m365profiles.git"
   },
   "license": "MIT",
-  "author": "Ninja Paws contributors",
+  "author": "Microsoft Corporation",
   "homepage": "https://m365profiles.com",
   "bugs": {
     "url": "https://github.com/ninjapaw/m365profiles/issues"
@@ -41,6 +42,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^22.10.5",
     "markdownlint-cli2": "^0.18.0",
     "prettier": "^3.4.0",
     "prettier-plugin-astro": "^0.14.1",

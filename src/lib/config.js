@@ -9,7 +9,7 @@ export const CONFIG = Object.freeze({
   base: "/",
   name: "M365 Profiles",
   tagline: "Microsoft 365 Licensing Decision Tree",
-  owner: "Ninja Paws contributors",
+  owner: "Microsoft Corporation",
   repo: "ninjapaw/m365profiles",
   defaultBranch: "main",
 
