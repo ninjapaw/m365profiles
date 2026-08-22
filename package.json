@@ -34,9 +34,9 @@
     "url": "https://github.com/ninjapaw/m365profiles/issues"
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.0.0",
+    "@astrojs/mdx": "^7.0.7",
     "@astrojs/sitemap": "^3.2.0",
-    "astro": "^5.5.0",
+    "astro": "^7.2.4",
     "jspdf": "^2.5.2"
   },
   "devDependencies": {
