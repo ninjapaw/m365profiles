@@ -17,10 +17,11 @@ yarn-error.log
 # Astro build artifacts
 dist/
 .astro/
+playwright-report/
+test-results/
 
 # Azure Developer CLI local environment state
-.azure/*
-!.azure/deployment-plan.md
+.azure/
 
 # OS / editor noise
 .DS_Store

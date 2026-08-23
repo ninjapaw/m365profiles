@@ -68,7 +68,7 @@ read from `CONFIG` and should not be edited directly.
 | `base` | `/` | Site base path. Azure Static Web Apps always serves from the root. `Astro.base` and every internal-link prefix. Override with `PUBLIC_SITE_BASE`. |
 | `name` | `M365 Profiles` | Brand name in navbar, footer, `<title>`, manifest, JSON-LD. |
 | `tagline` | `Microsoft 365 Licensing Decision Tree` | Home `<title>` suffix and JSON-LD `description`. |
-| `owner` | `Ninja Paws contributors` | Footer copyright, `<meta author>`, JSON-LD `Person`. |
+| `owner` | `Microsoft Corporation` | Footer copyright, `<meta author>`, JSON-LD `Person`. |
 | `repo` | `ninjapaw/m365profiles` | GitHub `owner/repo` slug — drives `GITHUB_URL` and source deep-links. |
 | `defaultBranch` | `main` | Branch used in `blob/<branch>/…` deep-links. |
 
@@ -325,4 +325,4 @@ or endorsed by Microsoft Corporation.
 
 ## License
 
-[MIT](LICENSE) © Ninja Paws contributors
+[MIT](LICENSE) © Microsoft Corporation
