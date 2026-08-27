@@ -14,6 +14,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  pawprint-bicep:
+    name: Pawprint Bicep contract
+    uses: ninjapaw/pawprint/.github/workflows/kit-bicep-validate.yml@18e1d946fa59333e4905a83759748f04887a5e02
+    with:
+      bicep-glob: "infra/**/*.bicep"
+      check-committed-arm: true
+      fail-on-lint-warning: true
+
   validate:
     runs-on: ubuntu-latest
     steps:
