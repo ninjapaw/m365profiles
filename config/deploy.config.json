@@ -2,7 +2,6 @@
   "configVersion": "1.0.0",
   "project": {
     "name": "m365profiles",
-    "siteName": "m365profiles",
     "repository": "ninjapaw/m365profiles"
   },
   "defaults": {

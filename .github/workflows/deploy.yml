@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   deploy:
-    uses: ninjapaw/pawprint/.github/workflows/kit-deploy-static-site.yml@5b51e06db472b7627d417ef3a99824155b4c3411
+    uses: ninjapaw/pawprint/.github/workflows/kit-deploy-static-site.yml@3e261301bb1a70bcd25f3891117c16ebd8065ca5
     permissions:
       contents: write
     with:
