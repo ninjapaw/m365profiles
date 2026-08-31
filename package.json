@@ -16,13 +16,14 @@
     "test:state": "node scripts/test-state-invariants.mjs",
     "test:links": "node scripts/test-site-links.mjs",
     "typecheck": "astro check",
+    "config:check": "node scripts/deploy-config.mjs --environment dev --check && node scripts/deploy-config.mjs --environment prod --check",
     "test:e2e": "playwright test",
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#dist\" \"#.astro\"",
     "lint": "npm run lint:md",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "check": "npm run validate-tree && npm run typecheck && npm run lint && npm run format",
-    "test": "npm run validate-tree && npm run test:walk && npm run test:state"
+    "test": "npm run config:check && npm run validate-tree && npm run test:walk && npm run test:state"
   },
   "repository": {
     "type": "git",

@@ -21,27 +21,22 @@ param siteSkuName string = 'Free'
 @description('Additional tags applied to the Static Web App.')
 param tags object = {}
 
-var resourceTags = union({
-  application: 'm365profiles'
-  component: 'web'
-  environment: environmentName
-  managedBy: 'bicep'
-  'azd-service-name': 'web'
-}, tags)
+@description('DNS-validated custom domain. Leave blank until the TXT record exists at the DNS provider.')
+param customDomainName string = ''
 
-module staticSite 'br/public:avm/res/web/static-site:0.9.5' = {
-  name: 'static-site-${uniqueString(resourceGroup().id, siteName)}'
+module staticSite '../../../vendor/pawprint/modules/static-site/main.bicep' = {
+  name: 'pawprint-static-site'
   params: {
-    name: siteName
+    siteName: siteName
     location: location
-    allowConfigFileUpdates: true
-    enableTelemetry: false
-    sku: siteSkuName
-    stagingEnvironmentPolicy: 'Enabled'
-    tags: resourceTags
+    environmentName: environmentName
+    application: 'm365profiles'
+    siteSkuName: siteSkuName
+    customDomainName: customDomainName
+    tags: tags
   }
 }
 
 output resourceId string = staticSite.outputs.resourceId
 output defaultHostname string = staticSite.outputs.defaultHostname
-output siteUrl string = 'https://${staticSite.outputs.defaultHostname}'
+output siteUrl string = staticSite.outputs.siteUrl

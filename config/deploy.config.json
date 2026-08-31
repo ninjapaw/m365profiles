@@ -1,16 +1,30 @@
 {
+  "configVersion": "1.0.0",
   "project": {
     "name": "m365profiles",
     "siteName": "m365profiles",
     "repository": "ninjapaw/m365profiles"
   },
   "defaults": {
+    "deploymentTarget": "azure-static-web-app",
     "location": "centralus",
     "resourceGroup": "m365profiles-dev",
     "siteName": "m365profiles-dev-site",
     "publicSiteUrl": "https://dev.m365profiles.com",
     "siteSku": "Free",
-    "siteBase": "/"
+    "siteBase": "/",
+    "secrets": { "mode": "none" },
+    "resolver": {
+      "required": ["azureEnvironment", "siteName", "publicSiteUrl"],
+      "env": {
+        "DEPLOYMENT_TARGET": "deploymentTarget",
+        "AZURE_STATIC_WEB_APP_NAME": "siteName",
+        "AZURE_SITE_SKU": "siteSku",
+        "AZURE_PUBLIC_SITE_URL": "publicSiteUrl",
+        "PUBLIC_SITE_URL": "publicSiteUrl",
+        "PUBLIC_SITE_BASE": "siteBase"
+      }
+    }
   },
   "environments": {
     "dev": {

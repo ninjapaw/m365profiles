@@ -21,116 +21,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  resolve_environment:
-    runs-on: ubuntu-latest
-    outputs:
-      environment: ${{ steps.detect.outputs.environment }}
-      site_url: ${{ steps.detect.outputs.site_url }}
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-
-      - name: Detect environment from branch or input
-        id: detect
-        env:
-          BRANCH: ${{ github.ref_name }}
-          INPUT_ENVIRONMENT: ${{ inputs.environment }}
-        run: |
-          config_file="config/deploy.config.json"
-
-          if [ ! -f "$config_file" ]; then
-            echo "::error title=Missing config::Expected config/deploy.config.json to define environment defaults."
-            exit 1
-          fi
-
-          case "$BRANCH" in
-            main) detected=prod ;;
-            dev) detected=dev ;;
-            *) detected="" ;;
-          esac
-
-          if [ -n "$INPUT_ENVIRONMENT" ] && [ "$INPUT_ENVIRONMENT" != "auto-detect" ]; then
-            environment="$INPUT_ENVIRONMENT"
-          elif [ -n "$detected" ]; then
-            environment="$detected"
-          else
-            echo "::error title=Unsupported branch::Cannot auto-detect an environment for '$BRANCH'. Deploy from 'dev' or 'main'."
-            exit 1
-          fi
-
-          if [ -n "$detected" ] && [ "$environment" != "$detected" ]; then
-            echo "::error title=Branch and environment mismatch::Branch '$BRANCH' maps to $detected, not $environment."
-            exit 1
-          fi
-
-          site_url="$(jq -r --arg env "$environment" '.environments[$env].publicSiteUrl // .defaults.publicSiteUrl' "$config_file")"
-          if [ -z "$site_url" ] || [ "$site_url" = "null" ]; then
-            echo "::error title=Invalid config::publicSiteUrl is missing for environment '$environment'."
-            exit 1
-          fi
-
-          echo "environment=$environment" >> "$GITHUB_OUTPUT"
-          echo "site_url=$site_url" >> "$GITHUB_OUTPUT"
-          echo "Deploying '$BRANCH' to the $environment environment." >> "$GITHUB_STEP_SUMMARY"
-
-  build_and_deploy:
-    needs: resolve_environment
-    runs-on: ubuntu-latest
-    environment: ${{ needs.resolve_environment.outputs.environment }}
-    outputs:
-      app_version: ${{ steps.version.outputs.app_version }}
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version-file: .node-version
-          cache: "npm"
-
-      - run: npm ci
-
-      - run: npm run validate-tree
-
-      - name: Set build version
-        id: version
-        run: |
-          app_version="v$(date -u +'%Y.%m.%d')-${GITHUB_RUN_NUMBER}"
-          echo "PUBLIC_APP_VERSION=$app_version" >> "$GITHUB_ENV"
-          echo "app_version=$app_version" >> "$GITHUB_OUTPUT"
-          echo "PUBLIC_BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
-
-      - name: Build
-        env:
-          PUBLIC_SITE_URL: ${{ vars.AZURE_PUBLIC_SITE_URL || vars.PUBLIC_SITE_URL || needs.resolve_environment.outputs.site_url }}
-          PUBLIC_SITE_BASE: "/"
-        run: npm run build
-
-      - name: Verify Static Web Apps deployment token
-        env:
-          AZURE_STATIC_WEB_APPS_API_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-        run: ': "${AZURE_STATIC_WEB_APPS_API_TOKEN:?Set this secret after provisioning the Static Web App}"'
-
-      - name: Deploy to Azure Static Web Apps
-        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9 # v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "dist"
-          output_location: ""
-          skip_app_build: true
-
-  release:
-    if: ${{ needs.resolve_environment.outputs.environment == 'prod' && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip release]')) }}
-    needs: [resolve_environment, build_and_deploy]
-    runs-on: ubuntu-latest
+  deploy:
+    uses: ninjapaw/pawprint/.github/workflows/kit-deploy-static-site.yml@de65a5017f51b2ca9213ec07b5fbfc889262fee2
     permissions:
       contents: write
-    steps:
-      - name: Create release
-        run: |
-          gh release create "${APP_VERSION}" \
-            --title "${APP_VERSION}" \
-            --generate-notes || true
-        env:
-          APP_VERSION: ${{ needs.build_and_deploy.outputs.app_version }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    with:
+      environment: ${{ inputs.environment || 'auto-detect' }}
+      pre-build-commands: npm run validate-tree
+    secrets:
+      AZURE_STATIC_WEB_APPS_API_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}

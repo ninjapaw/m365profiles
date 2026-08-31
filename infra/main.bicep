@@ -21,6 +21,9 @@ param siteSkuName string = 'Free'
 @description('Additional tags applied to the Static Web App.')
 param tags object = {}
 
+@description('DNS-validated custom domain. Leave blank until the TXT record exists at the DNS provider.')
+param customDomainName string = ''
+
 module site 'azure/site/main.bicep' = {
   name: 'static-site'
   params: {
@@ -28,6 +31,7 @@ module site 'azure/site/main.bicep' = {
     location: location
     environmentName: environmentName
     siteSkuName: siteSkuName
+    customDomainName: customDomainName
     tags: tags
   }
 }
