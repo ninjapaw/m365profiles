@@ -260,6 +260,60 @@ resolves all values from the `dev` Environment; it never reads `prod` secrets.
 
 The repo intentionally keeps environment-specific values out of source control. Use GitHub Environment variables and secrets for the real values for each target: `dev` for the preview site and `prod` for the live site.
 
+## Pawprint integration contract
+
+This repository consumes the shared
+[Pawprint](https://github.com/ninjapaw/pawprint) platform kit so deployment
+policy stays consistent across Ninja Paws projects rather than being restated
+here.
+
+- `deploy.yml` consumes `kit-deploy-static-site.yml`, which owns the
+  branch-to-environment binding, the build, the Static Web Apps publish and the
+  release. Only this repository's own pre-build check is passed in.
+- `lint.yml` consumes `kit-bicep-validate.yml` for Bicep compilation, the shared
+  linter ruleset, committed-ARM drift and vendored-copy drift.
+- `promote-dev-to-main.yml` consumes `kit-promote.yml`.
+- `bicepconfig.json` tracks the canonical Pawprint ruleset and is drift-checked
+  against it.
+
+All kit references are pinned to an immutable commit SHA so behaviour is
+deterministic and reviewable.
+
+### Vendored files
+
+Bicep has no module registry available here, so shared modules and scripts are
+copied into `vendor/pawprint/` with paths mirroring the Pawprint repository:
+
+| Vendored path                     | Owns                                                           |
+| --------------------------------- | -------------------------------------------------------------- |
+| `modules/static-site/main.bicep`  | The Static Web App and its optional custom domain              |
+| `scripts/deploy-config.mjs`       | Resolving `config/deploy.config.json` to environment variables |
+| `scripts/validate-environment.sh` | Refusing malformed deployment variables                        |
+
+Do not edit these copies. `kit-bicep-validate.yml` fails the build when one
+drifts from its source, which is what stops a copy quietly becoming a fork.
+Change the file in Pawprint and re-vendor from there:
+
+```bash
+# from a Pawprint checkout
+node scripts/vendor-sync.mjs --target ../m365profiles --check
+node scripts/vendor-sync.mjs --target ../m365profiles
+```
+
+What this repository emits from `config/deploy.config.json` is declared in that
+file under `defaults.resolver`, so repository-specific output stays in
+configuration rather than in a fork of the shared resolver.
+
+### Azure identity
+
+`AZURE_CLIENT_ID`, `AZURE_TENANT_ID` and `AZURE_SUBSCRIPTION_ID` are GitHub
+**Variables**, not Secrets. With OIDC federated credentials there is no client
+secret, and these identifiers appear in every resource id a deployment prints,
+so marking them secret only redacts the deployment log to `***`.
+`AZURE_TENANT_ID` and `AZURE_LOCATION` are organisation-level; the rest are per
+Environment. The workflows read `vars` first and fall back to the older secrets,
+so the migration cannot break a deploy.
+
 ## Project layout
 
 ```text
