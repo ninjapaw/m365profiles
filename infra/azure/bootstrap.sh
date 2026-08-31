@@ -102,6 +102,10 @@ subscription_id="$(az account show --query id --output tsv)"
 tenant_id="$(az account show --query tenantId --output tsv)"
 gh auth status >/dev/null
 repository="${repository:-$(gh repo view --json nameWithOwner --jq .nameWithOwner)}"
+read -r repository_owner repository_owner_id repository_id < <(
+  gh api "repos/${repository}" --jq '[.owner.login, .owner.id, .id] | @tsv'
+)
+[[ -n "$repository_owner" && -n "$repository_owner_id" && -n "$repository_id" ]] || { printf 'Unable to resolve GitHub repository identity for %s.\n' "$repository" >&2; exit 1; }
 github_environment="$environment_name"
 deployment_branch="$([[ "$environment_name" == prod ]] && echo main || echo dev)"
 application_name="m365profiles-${environment_name}-infrastructure-github"
@@ -127,9 +131,10 @@ if [[ -z "$principal_id" ]]; then
 fi
 
 credential_name="github-${github_environment}-infrastructure"
+credential_subject="repo:${repository_owner}@${repository_owner_id}/${repository##*/}@${repository_id}:environment:${github_environment}"
 credential_file="$(mktemp)"
 trap 'rm -f "$credential_file"' EXIT
-jq --null-input --arg name "$credential_name" --arg subject "repo:${repository}:environment:${github_environment}" '{name:$name,issuer:"https://token.actions.githubusercontent.com",subject:$subject,audiences:["api://AzureADTokenExchange"],description:"GitHub Actions environment OIDC trust"}' > "$credential_file"
+jq --null-input --arg name "$credential_name" --arg subject "$credential_subject" '{name:$name,issuer:"https://token.actions.githubusercontent.com",subject:$subject,audiences:["api://AzureADTokenExchange"],description:"GitHub Actions environment OIDC trust"}' > "$credential_file"
 existing_credential="$(az ad app federated-credential list --id "$application_object_id" --query "[?name == '$credential_name'] | [0].id" --output tsv)"
 if [[ -n "$existing_credential" ]]; then
   az ad app federated-credential delete --id "$application_object_id" --federated-credential-id "$existing_credential"

@@ -52,7 +52,8 @@ jobs:
         run: |
           az bicep build --file infra/main.bicep
           az bicep build --file infra/azure/site/main.bicep
-          az bicep build-params --file infra/azure/site/main.bicepparam
+          az bicep build-params --file infra/azure/site/main.dev.bicepparam
+          az bicep build-params --file infra/azure/site/main.prod.bicepparam
 
   deploy:
     if: github.event_name == 'workflow_dispatch'
