@@ -42,8 +42,8 @@
       "azureEnvironment": "production",
       "githubEnvironment": "prod",
       "location": "centralus",
-      "resourceGroup": "m365profiles-prod",
-      "siteName": "m365profiles-prod-site",
+      "resourceGroup": "NP-m365profiles-CentralUS",
+      "siteName": "NP-m365profiles-Prod-CentralUS",
       "publicSiteUrl": "https://m365profiles.com",
       "siteSku": "Free",
       "siteBase": "/"

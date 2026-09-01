@@ -221,8 +221,8 @@ gh auth login
 bash infra/azure/bootstrap.sh \
   --environment production \
   --subscription <approved-subscription-id> \
-  --resource-group m365profiles-production \
-  --site-name <globally-unique-site-name> \
+  --resource-group NP-m365profiles-CentralUS \
+  --site-name NP-m365profiles-Prod-CentralUS \
   --public-site-url https://m365profiles.com
 ```
 
@@ -237,8 +237,8 @@ Create protected `dev` and `prod` GitHub Environments. The bootstrap script conf
 | `AZURE_SUBSCRIPTION_ID` | Environment secret | *(subscription ID)* | Subscription that owns the target resource group. |
 | `AZURE_STATIC_WEB_APPS_API_TOKEN` | Environment secret | *(Static Web App deployment token)* | Required to publish. Set the dev app token in `dev` and the prod app token in `prod`. Rotate immediately if exposed. |
 | `AZURE_LOCATION` | Environment variable | `eastus2` | Resource-group and Static Web App metadata region. |
-| `AZURE_RESOURCE_GROUP` | Environment variable | `m365profiles-production` | Resource group owned by this Environment. |
-| `AZURE_STATIC_WEB_APP_NAME` | Environment variable | `m365profiles-production-site` | Globally unique Static Web Apps resource name. |
+| `AZURE_RESOURCE_GROUP` | Environment variable | `NP-m365profiles-CentralUS` | Resource group owned by this Environment. |
+| `AZURE_STATIC_WEB_APP_NAME` | Environment variable | `NP-m365profiles-Prod-CentralUS` | Globally unique Static Web Apps resource name. |
 | `AZURE_PUBLIC_SITE_URL` | Environment variable | `https://m365profiles.com` | Canonical URL embedded into the Astro build. |
 | `AZURE_SITE_SKU` | Environment variable | `Free` | Use `Standard` only for a required plan feature. |
 

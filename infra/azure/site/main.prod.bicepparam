@@ -1,6 +1,6 @@
 using './main.bicep'
 
-param siteName = 'm365profiles-prod-site'
+param siteName = 'NP-m365profiles-Prod-CentralUS'
 param location = 'centralus'
 param environmentName = 'production'
 param siteSkuName = 'Free'
