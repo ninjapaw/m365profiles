@@ -256,7 +256,30 @@ resolves all values from the `dev` Environment; it never reads `prod` secrets.
 
 `staticwebapp.config.json` configures the Azure Static Web Apps navigation fallback, 404 handling, MIME type, and HTTP security headers. `PUBLIC_SITE_BASE` is always `/` for this target.
 
-**Custom domain:** add the domain under the Static Web App's **Custom domains** blade, then set `AZURE_PUBLIC_SITE_URL` in the matching GitHub Environment before publishing the next build.
+**Custom domain:** the manual infrastructure workflow supports an explicit
+`configure-dns: true` opt-in when `operation: deploy`. Set
+`AZURE_CUSTOM_DOMAIN`, `CLOUDFLARE_ZONE_NAME` or `CLOUDFLARE_ZONE_ID` as matching
+Environment variables and `CLOUDFLARE_API_TOKEN` as a secret with **Zone Read +
+DNS Edit** for that exact zone. Keep `AZURE_PUBLIC_SITE_URL` aligned with the
+hostname before the next application build. The default remains `false`:
+pushes, PRs and what-if do not write Cloudflare records.
+
+The workflow deploys the base Static Web App, calls
+[the shared connector adapter](infra/azure/site/connect-cloudflare-dns.sh), then
+converges `customDomainName` with Bicep. Cloudflare stays authoritative and
+DNS-only; Azure owns validation and managed TLS. A foreign/ambiguous record is
+never overwritten. Equivalent legacy records retain their TTL/comments; new
+records are labelled for this repository and environment. Propagation or
+certificate issuance may require retrying; only Azure status `Ready` completes
+the connector. Manual portal setup remains an alternative.
+
+The DNS-only source is hash-checked under
+[vendor/pawprint-dns/](vendor/pawprint-dns/) independently of the immutable
+core-kit pin. Run `npm run vendor:check:dns`; update only from reviewed Pawprint
+source using `vendor-sync.mjs --prefix vendor/pawprint-dns --snapshot` and the
+shared DNS/script/license entries. Publish Pawprint before the consumer.
+No mail, nameservers, Cloudflare account settings, or unrelated/shared records
+are changed. Remove routing DNS before releasing an Azure hostname.
 
 The repo intentionally keeps environment-specific values out of source control. Use GitHub Environment variables and secrets for the real values for each target: `dev` for the preview site and `prod` for the live site.
 
