@@ -203,8 +203,7 @@ release as soon as they revisit the tab.
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
 | [`deploy-azure-infrastructure.yml`](.github/workflows/deploy-azure-infrastructure.yml) | IaC changes, PR, manual | Compiles Bicep. A manual run performs an OIDC-authenticated `what-if` or deploys the Static Web App. |
-| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main` or `dev`, manual | Validate tree → build → publish to the matching Azure Static Web Apps environment → tag CalVer release. Add `[skip release]` to skip tagging. |
-| [`promote-dev-to-main.yml`](.github/workflows/promote-dev-to-main.yml) | manual from `dev` | Creates or reuses the `dev` → `main` promotion pull request for review and merge. |
+| [`deploy.yml`](.github/workflows/deploy.yml) | push to `main`, manual | Validate tree → build → publish to the selected Azure Static Web Apps environment → tag production CalVer release. Main pushes target `prod`; manual runs can select `dev`. Add `[skip release]` to skip tagging. |
 | [`lint.yml`](.github/workflows/lint.yml) | push + PR to `main` | Build + tree validation, typecheck, markdownlint, link check, format check. |
 
 The site is fully static (no API routes), so it deploys to **Azure Static Web Apps Free** with no Azure Functions app required. `azure.yaml` and [`infra/`](infra/) make the resource reproducible through Bicep and Azure Developer CLI. The resource is kept separate from the static publish step: Bicep creates the Static Web App, while the deployment workflow publishes the verified Astro `dist/` output.
@@ -243,7 +242,9 @@ Create protected `dev` and `prod` GitHub Environments. The bootstrap script conf
 | `AZURE_SITE_SKU` | Environment variable | `Free` | Use `Standard` only for a required plan feature. |
 
 Pushes to `main` deploy to `prod` and use `https://m365profiles.com`.
-Pushes to `dev` deploy to `dev` and use `https://dev.m365profiles.com`.
+`main` is the only persistent branch. To update `https://dev.m365profiles.com`,
+run **Deploy** from `main` and explicitly select `dev`; there is no promotion
+branch or promotion workflow.
 Both environments use the same variable and secret names, but their values are
 isolated by GitHub Environment: set each environment's own
 `AZURE_STATIC_WEB_APPS_API_TOKEN` and do not share tokens.
@@ -291,11 +292,10 @@ policy stays consistent across Ninja Paws projects rather than being restated
 here.
 
 - `deploy.yml` consumes `kit-deploy-static-site.yml`, which owns the
-  branch-to-environment binding, the build, the Static Web Apps publish and the
+  main-only source guard, environment selection, build, Static Web Apps publish and
   release. Only this repository's own pre-build check is passed in.
 - `lint.yml` consumes `kit-bicep-validate.yml` for Bicep compilation, the shared
   linter ruleset, committed-ARM drift and vendored-copy drift.
-- `promote-dev-to-main.yml` consumes `kit-promote.yml`.
 - `bicepconfig.json` tracks the canonical Pawprint ruleset and is drift-checked
   against it.
 

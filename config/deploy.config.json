@@ -27,7 +27,7 @@
   },
   "environments": {
     "dev": {
-      "branch": "dev",
+      "branch": "main",
       "azureEnvironment": "development",
       "githubEnvironment": "dev",
       "location": "centralus",

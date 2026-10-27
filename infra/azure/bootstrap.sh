@@ -107,7 +107,7 @@ read -r repository_owner repository_owner_id repository_id < <(
 )
 [[ -n "$repository_owner" && -n "$repository_owner_id" && -n "$repository_id" ]] || { printf 'Unable to resolve GitHub repository identity for %s.\n' "$repository" >&2; exit 1; }
 github_environment="$environment_name"
-deployment_branch="$([[ "$environment_name" == prod ]] && echo main || echo dev)"
+deployment_branch=main
 application_name="m365profiles-${environment_name}-infrastructure-github"
 
 az provider register --namespace Microsoft.Web --wait

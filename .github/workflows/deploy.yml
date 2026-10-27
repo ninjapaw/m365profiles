@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
   workflow_dispatch:
     inputs:
       environment:
@@ -15,14 +15,14 @@ on:
 permissions:
   contents: read
 
-# Branch dev uses the dev environment, branch main uses the prod environment.
+# Main pushes publish prod; a manual main run can select dev explicitly.
 concurrency:
-  group: deploy-${{ (inputs.environment != '' && inputs.environment != 'auto-detect' && inputs.environment) || (github.ref_name == 'main' && 'prod' || 'dev') }}
+  group: deploy-${{ (inputs.environment != '' && inputs.environment != 'auto-detect' && inputs.environment) || 'prod' }}
   cancel-in-progress: false
 
 jobs:
   deploy:
-    uses: ninjapaw/pawprint/.github/workflows/kit-deploy-static-site.yml@3e261301bb1a70bcd25f3891117c16ebd8065ca5
+    uses: ninjapaw/pawprint/.github/workflows/kit-deploy-static-site.yml@805cae1d739b7bbab1f9733d249372a4b29f66e4
     permissions:
       contents: write
     with:
